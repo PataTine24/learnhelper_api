@@ -1,0 +1,125 @@
+Hier kommen einfach gedanken zu dem Projekt rein:
+
+Am ende:
+Ausgabe einer Frage (id hinterlegt), welche a,b,c,d auswahl hat, welche verknüpft sind mit der antwort id
+Einen weiter button & abbrechen button. Zusätzlich muss sich durch den ganzen test eine TestId ziehen.
+Kurz wir benötigen ein object mit:
+- Frage (string)
+- FrageId (int)
+- AntwortenList (Text & id / string&int)
+
+
+Bei weiter muss die TestId, FrageId und List AntwortenIds an die DB übermittelt werden.
+Zählen beantwortete fragen counter hoch
+Prüfung ob zu dem Test Ausgewählte anzahl Fragen = fragen counter, dann zeig end screen
+Es muss eine neue Zufällige Frage ausgewählt werden, welche o.g. object erzeugt aus der DB wo nicht
+"Diese TestId hat Frage ID)
+Prüfe ob noch fragen möglich sind, wenn nicht gib fehlermeldung aus, das es so viele fragen nicht gibt.
+
+
+Start Screen:
+Auswahl:
+Fragen hinzufügen
+Test Starten
+Abegschlossenen Test prüfen/nachlernen
+(neue testkategorie anlegen)
+
+Fragen hinzufügen:
+(später Testkategorie hinzufügen)
+Feld Frage Input (Markdown möglich für scripte)
+Auswahlfeld singlechoice/multiplechoice
+4 Antwort Felder
+Abbrechen Feld
+Weitere Fragen hinzufügen (hier wird speichern direkt ausgeführt udn die maske neu geladen)
+Speichern und beenden
+Input via JSON (oder anderem formater)
+
+Beim speichern werden alle felder ausgelesen und an die DB funktion zum eintragen übermittelt.
+Test kategorie muss immer ein hauptthema haben (python e.g.) und eine subkategorie (z.b. Basics, GUIs, Machine Learning whatever)
+
+Abgeschlossenen Test prüfen:
+Auswahl test ID (später ggf nutzer basierend alle eigenen test ids anzeigen)
+Anzeigen Button
+
+Anzeige Testergebniss/auswertung:
+Block je Frage mit Frage + allen 4 antworten (zufällig geordnet), richtige antworten grün makiert, falsche & fehlende rot
+Rechts aufsteigende punktzahl
+beenden button
+
+Bei laden der seite muss eine DB anfrage gestartet werden, welche antwortFrage objekte wieder gibt,
+diese werden gelooped ausgegeben und anschließend wird bei jeder frage geprüft welche antworten der user richtig hatte.
+Diese werden bei der antwort anzeige wenn richtig rot ausgegeben bzw grün wenn korrekt. Bei richtig addiere einn punkt,dann zeige rechts den punktecounter
+rechts an dann baue neues view darunter
+
+mit der nächsten frage usw bis ende der fragen erreicht ist.
+
+
+Test Starten:
+Wähle Testkategorie oder Überkategorie (Drop down)
+Anzahl Fragen maximal (Falls weniger fragen in DB vorhanden sind, wird vprher abegschlossen)
+(auch auswahl maximale anzahl)
+Mit timer? Checkbox
+Start
+Abbrechen
+
+Wenn geladen wird, finde alle Testkategorien, gebe diese in der dropdownliste aus.
+Wenn auf Start gedrückt wird, setze neue Testid(basierend auf DB return), FragenCounter zu 0 setzen,
+maximale fragen counter setzen, setze die startzeit des tests, wenn timer checkbox.
+Setze testkategorieId
+Bei start rufe die anzeige frage funktion auf.
+
+
+
+Anzeige Fragen + antwort:
+Fragennummer (Zeit wann frage gestartet)
+Frage textfeld
+Multi/Single choice Infofeld
+Ausgabe der 4 antworten zufällig sortiert mit entweder radio button oder checkbox
+Speichern
+
+Beim laden wird eine funktion ausgeführt, welche ein frageAntwort objekt erstellt.
+Bei ausgabe der anworten wird jede box/radio button die ID der antwort beeinhalten.
+Wenn speichern gedrück wird, muss neues frageAntwort objekt erstellt werden
+
+
+If soemeone does a test, allways check if the minimum of choices is done. Single choice 1, multiple choice 2
+database procedures are "kinda" wrong, i forgot all timestamp outputs :D
+
+
+Startmenu:
+"Take Test"
+"Add question"
+"Change Question (No tested ones)"
+"Add person"
+
+Auswahl:
+Fragen hinzufügen
+Test Starten
+Abegschlossenen Test prüfen/nachlernen
+(neue testkategorie anlegen)
+
+optional tests mit hn und her springen der fragen
+ggf beim test aus werten auch über KI hilfe bekommen zur frage
+
+TODO:
+
+Alle fragen/antworten die hinzugefügt werden, sollen einmal als "View" angezeigt werden!
+Damit man auch sieht ob diese richtig aussehen.
+
+Bei test schreiben, soll die option frage melden verfügbar sein!
+Falls sich ein fehler eingeschlichen hat, wird diese als fehlerhaft gechecked und überprüft
+(später in eigener tabelle speichern mit fehler info bzw. wenigstens wann/wer reported hat)
+
+Fragen die hinzugefügt wurden, sollten geflagt werden mit "checked" und erst auswählbar sein, wenn "check" = true
+DOCstring with info of order in list for the MYSQLmodule
+
+QUESTION/ANSWER
+bei input von python aus muss der text direkt korrekt convertiert werden um sonderzeichen
+wie "" `` oder '' ausgeben zu können, zusätzlich code fragmente einfügen als MarkDown
+
+
+CALL delete_question() muss später erstellt werden, wird komplexer wegen leeren datensätzen vorbeugen
+
+
+
+
