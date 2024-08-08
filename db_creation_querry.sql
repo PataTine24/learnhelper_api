@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS `answers` (
   `correct` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE IF NOT EXISTS `con_test_question` (
   `id` int NOT NULL AUTO_INCREMENT,
   `question_id` int NOT NULL,
@@ -17,6 +18,7 @@ CREATE TABLE IF NOT EXISTS `con_test_question` (
   `creation_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=90 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE IF NOT EXISTS `con_test_question_answer` (
   `id` int NOT NULL AUTO_INCREMENT,
   `answer_id` int NOT NULL,
@@ -24,12 +26,14 @@ CREATE TABLE IF NOT EXISTS `con_test_question_answer` (
   `question_id` int NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE IF NOT EXISTS `persons` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `creation_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE IF NOT EXISTS `questions` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `test_type_id` INT NOT NULL,
@@ -38,6 +42,25 @@ CREATE TABLE IF NOT EXISTS `questions` (
     `creation_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 )  ENGINE=INNODB AUTO_INCREMENT=20 DEFAULT CHARSET=UTF8MB4 COLLATE = UTF8MB4_0900_AI_CI;
+
+CREATE TABLE `taken_tests` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `person_id` int NOT NULL,
+  `test_type_id` int NOT NULL,
+  `number_of_questions` int NOT NULL,
+  `start_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+CREATE TABLE `test_types` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `content` varchar(255) NOT NULL,
+  `main_type_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 
 /* Creation of views & procedures */
 

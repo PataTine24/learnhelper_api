@@ -1,5 +1,5 @@
 .venv*
 .idea*
 *.log
-*scribble*
+scribble
 *settings.json
