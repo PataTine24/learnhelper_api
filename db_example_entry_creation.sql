@@ -1,8 +1,8 @@
 /* This procedures should create now entrys for testing*/
-CALL `learnhelper`.`add_test_type`("Python All", None);
-CALL `learnhelper`.`add_test_type`("SQL All", None);
-CALL `learnhelper`.`add_test_type`("NoSQL All", None);
-CALL `learnhelper`.`add_test_type`("Project Management All", None);
+CALL `learnhelper`.`add_test_type`("Python All", NULL);
+CALL `learnhelper`.`add_test_type`("SQL All", NULL);
+CALL `learnhelper`.`add_test_type`("NoSQL All", NULL);
+CALL `learnhelper`.`add_test_type`("Project Management All", NULL);
 
 CALL `learnhelper`.`add_person`("Admin");
 CALL `learnhelper`.`add_person`("Test User");
