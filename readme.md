@@ -6,6 +6,11 @@ Basically i want to document my ways of doing stuff here,
 so that others can easily add request to change in my code and we all use the
 same way of writing.
 
+We used python 3.12 for the project, so we recommend to install python 3.12+ to work on it.
+Be carefull if yu use PyCharm as it uses virtual environments, where you need to set up the 
+interpreter in each project properly (factory settings).
+You can change the interpreter by going to 
+
 ## mysqlmodule
 This module used the mysql connector, so you need to install it in your IDE properly.
 In PyCharm go to packet manager and search for pip (if you want to install stuff via console)

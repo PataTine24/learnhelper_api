@@ -267,10 +267,13 @@ def delete_person_data(person_id: int) -> None:
 # # # # # Code to test # # # # #
 
 def test():
+    quest_id = 21
+    # maybe you need to change the ID you give out for testing (database AUTO_INCREMENT can be a lil tricky sometimes)
+    # to check use mysql workbench and show the questions table and take one ID form there
     print("Testing:")
-    print(get_answers_by_question_id(3))
+    print(get_answers_by_question_id(quest_id))
     # better readable:
-    for _, _, answer, correct in get_answers_by_question_id(3):
+    for _, _, answer, correct in get_answers_by_question_id(quest_id):
         print("[CORRECT]" if correct == 1 else "[WRONG]", answer)
     # there can be line breaks if you print answers/questions! because they can contain line breaks in string
 
