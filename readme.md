@@ -60,6 +60,7 @@ def my_function(first_param, second):
     return second - first_param
 # not like this!
 
+
 # pseudo code, imagine in a class that has this attributes
 def check_inside(self, x, y):
     if self.x_start <= x <= self.x_end and self.y_start <= y <= self.y_end:
