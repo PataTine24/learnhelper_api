@@ -5,3 +5,4 @@
 *.log
 *scribble*
 *settings.json
+__pycache__/
