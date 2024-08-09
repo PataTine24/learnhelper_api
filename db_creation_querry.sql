@@ -408,4 +408,12 @@ WHERE `id` = a_d_id;
 END$$
 DELIMITER ;
 
+/* get_person_list */
 
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_person_list`()
+BEGIN
+SELECT `persons`.`id`, `persons`.`name`
+FROM `persons`;
+END$$
+DELIMITER ;

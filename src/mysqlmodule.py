@@ -160,6 +160,8 @@ def get_question_ids_by_test_id(test_id: int) -> list[int]:
         result.append(x[0])
     return result
 
+def get_person_list():
+    return no_commit("get_person_list")
 
 # ADD to DB
 def add_single_choice_question(question: str, question_type: int, correct_answer: str,
@@ -267,7 +269,7 @@ def delete_person_data(person_id: int) -> None:
 # # # # # Code to test # # # # #
 
 def test():
-    quest_id = 21
+    quest_id = 3
     # maybe you need to change the ID you give out for testing (database AUTO_INCREMENT can be a lil tricky sometimes)
     # to check use mysql workbench and show the questions table and take one ID form there
     print("Testing:")
@@ -283,3 +285,4 @@ def test():
 
 if __name__ == "__main__":
     test()
+

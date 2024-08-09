@@ -23,3 +23,10 @@ if __name__ == "__main__":
 
 
 
+text =  "What will be the output of the following code?\n\n```python\nprint(type([]) is list)\n```"
+
+max = 20
+codeblock = "```python\nprint(type([]) is list)\n```"
+out= ["What will be the","output of the", "following code?", "\n", "{codeblock}"]
+
+out = ["What will be the","output of the", "following code?", "\n", "```python\nprint(type([]) is list)\n```"]
