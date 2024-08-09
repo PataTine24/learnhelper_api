@@ -37,6 +37,10 @@ class SettingsManager:
         }
 
     def import_settings(self):
+        """
+        imports settings from the json file declared in the object.
+        standard is source folder -> up as settings.json
+        """
         if path.exists(self.__filepath):
             with open(self.__filepath, 'r') as file:
                 content = file.read().strip()
@@ -51,11 +55,21 @@ class SettingsManager:
             print(f"Error: The file {self.__filepath} does not exist. Loading default settings.")
 
     def export_settings(self):
+        """
+        exports settings to the json file declared in the object.
+        standard is source folder -> up as settings.json
+        """
         with open(self.__filepath, 'w') as json_file:
             # dump with extra params makes it better readable
             json.dump(self.__settings, json_file, indent=4, sort_keys=True)
 
     def get_settings(self, *args) -> dict:
+        """
+        Gets local setting from the own attribute. Its a dict.
+        You get returned the setting key based on the number of args.
+        1 arg above setting like "person_data"
+        2 args directly the value of a specific setting.
+        """
         if len(args) == 1:
             if args[0] in self.__settings:
                 return self.__settings.get(args[0], {})
