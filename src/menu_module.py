@@ -188,12 +188,12 @@ class StartFrame(tb.Frame):
         ind_drop = self.dropdown.current()
         set_man.set_settings_key("person_data", "id", self.index_to_id_list[ind_drop])
         set_man.set_settings_key("person_data", "name", self.person_list[ind_drop])
-        ViewManager.get_instance().get_view("main_menu_frame").tkraise()
+        ViewManager.get_instance().get_view("MainMenuFrame").load_me()
 
 class MainMenuFrame(tb.Frame):
     def __init__(self, master=None):
         super().__init__(master)
-
+        self._master = master
         person_name = set_man.get_settings("person_data", "name")
 
         lab = tb.Label(self, text=f"Eingeloggt als {person_name}", font=("Consolas", 20), bootstyle="success")
@@ -212,6 +212,16 @@ class MainMenuFrame(tb.Frame):
             button = tb.Button(self, text=menu_list[0][i], bootstyle="success, outline", command=link_func)
             button.place(relx=0.5, rely=start_y + i * button_height, anchor='n', bordermode='outside')
             button.configure(width=button_width)
+
+    def load_me(self):
+        # this works only if the viewmanager has the viewname as the classname
+        secondary = MainMenuFrame(self._master)
+        ViewManager.get_instance().add_view(self.__class__.__name__, secondary)
+        secondary.grid(row=0, column=0, sticky='nsew')
+        secondary.tkraise()
+        self.destroy()
+
+
 
 # TODO: TestStartFrame
 class TestStartFrame(tb.Frame):
@@ -328,6 +338,7 @@ def set_window_propertys():
 
     scheme = str(set_man.get_settings("visual_data", "color_scheme"))
     # FIXME: Seems like this has a problem with different themes?
+    #  Maybe they are changing different things we dont see in our project so far
     root_window = tb.Window(themename=scheme)
 
     #set_man.set_settings_key("visual_data", "size", (800, 600))
@@ -365,16 +376,16 @@ def test():
 
     vm = ViewManager.get_instance()
     vm.add_view("base", base)
-    vm.add_view("start_frame", StartFrame(base))
+    vm.add_view("StartFrame", StartFrame(base))
 
-    vm.add_view("main_menu_frame", MainMenuFrame(base))
-    vm.add_view("test_start_frame", TestStartFrame(base))
-    vm.add_view("test_question_frame", TestQuestionFrame(base))
-    vm.add_view("check_test_frame", CheckTestFrame(base))
-    vm.add_view("test_result_frame", TestResultFrame(base))
-    vm.add_view("question_menu_frame", QuestionMenuFrame(base))
-    vm.add_view("settings_frame", SettingsFrame(base))
-    vm.add_view("person_settings_frame", PersonSettingsFrame(base))
+    vm.add_view("MainMenuFrame", MainMenuFrame(base))
+    vm.add_view("TestStartFrame", TestStartFrame(base))
+    vm.add_view("TestQuestionFrame", TestQuestionFrame(base))
+    vm.add_view("CheckTestFrame", CheckTestFrame(base))
+    vm.add_view("TestResultFrame", TestResultFrame(base))
+    vm.add_view("QuestionMenuFrame", QuestionMenuFrame(base))
+    vm.add_view("SettingsFrame", SettingsFrame(base))
+    vm.add_view("PersonSettingsFrame", PersonSettingsFrame(base))
 
     list_views: dict = vm.get_view_list()
     for key, fr in list_views.items():
@@ -387,9 +398,9 @@ def test():
     # FIXME: We need to load the view new(init it new) to get the right infos in it , like person data
     if set_man.get_settings("person_data", "id") == 0:
         # need to open the init screen for setting user
-        vm.get_view("start_frame").tkraise()
+        vm.get_view("StartFrame").tkraise()
     else:
-        vm.get_view("main_menu_frame").tkraise()
+        vm.get_view("MainMenuFrame").tkraise()
 
     base.mainloop()
 
