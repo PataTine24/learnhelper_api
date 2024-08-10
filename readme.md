@@ -1,7 +1,6 @@
 # About the Learnhelper project
 
 ----
-
 Basically i want to document my ways of doing stuff here,
 so that others can easily add request to change in my code and we all use the
 same way of writing.
@@ -10,6 +9,15 @@ We used python 3.12 for the project, so we recommend to install python 3.12+ to 
 Be carefull if yu use PyCharm as it uses virtual environments, where you need to set up the 
 interpreter in each project properly (factory settings).
 You can change the interpreter by going to 
+
+## Licensing
+**GNU General Public License (GPL) v3**
+1. I allow others to modify my code(Forks or pulls) and create their own versions.
+2. Any derived work needs to remain free and open-source. (No adds, no paywalls, no closed source)
+3. If you use a mainpart of my code, please let me know, so ive the ability to review and approve modifications before they become public.
+4. Using code snippets is all fine, but please mention me in smth. liek credits with a link t this project
+(can be in the readme of the github also)
+      
 
 ## mysqlmodule
 This module used the mysql connector, so you need to install it in your IDE properly.
