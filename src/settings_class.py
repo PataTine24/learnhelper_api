@@ -27,6 +27,7 @@ class SettingsManager:
     Has access to
         "person_data": {"id", "name" , "password"},
         "visual_data": {"color_scheme" , "size" },
+        size = tuple(x,y)
         "db_data": {"host" , "user" , "password" , "database" }
     """
 
@@ -34,7 +35,7 @@ class SettingsManager:
         self.__filepath = filepath
         self.__settings = {
             "person_data": {"id": 0, "name": "empty", "password": "<PASSWORD>"},
-            "visual_data": {"color_scheme": "default", "size": "default"},
+            "visual_data": {"color_scheme": "litera", "size": (800, 600)},
             "db_data": {"host": "localhost", "user": "root", "password": "12345", "database": "learnhelper"}
         }
 

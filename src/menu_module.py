@@ -184,6 +184,7 @@ class StartFrame(tb.Frame):
         self.forward_button.bind("<ButtonRelease-1>", self.continue_to_main)
 
     def continue_to_main(self, *xargs):
+        # TODO: Check if entry exists from DB before setting it in local data (anti hack)
         ind_drop = self.dropdown.current()
         set_man.set_settings_key("person_data", "id", self.index_to_id_list[ind_drop])
         set_man.set_settings_key("person_data", "name", self.person_list[ind_drop])
@@ -266,6 +267,8 @@ class PersonSettingsFrame(tb.Frame):
         super().__init__(master)
 
         pass
+
+
 # # # #  Function for changing what is happening on window close # # # #
 def on_closing():
     base = ViewManager.get_instance().get_view("base")
@@ -273,52 +276,90 @@ def on_closing():
         # TODO: Save stuff based on position the person is on (like in a test)
         base.destroy()  # Schließt das Fenster
 
-def set_window_propertys(root_window):
+
+# TODO: change to proper area in code
+dict_window_sizes: dict[str, tuple[int, int]] = {
+    "VGA(4:3)": (640, 480),
+    "SVGA(4:3)": (800, 600),
+    "XGA(4:3)": (1024, 768),
+    "HD(16:9)": (1280, 720),
+    "WXGA(16:10)": (1280, 800),
+    "HD(16:9)": (1366, 768),
+    "WXGA+(16:10)": (1440, 900),
+    "HD+(16:9)": (1600, 900),
+    "WSXGA+(16:10)": (1680, 1050),
+    "FULL HD (16:9)": (1920, 1080),
+    "WUXGA(16:10)": (1920, 1200),
+    "QHD/2K(16:9)": (2560, 1440),
+    "WQXGA(16:10)": (2560, 1600),
+    "4K UHD(16:9)": (3840, 2160),
+    "5K(16:9)": (5120, 2880),
+    "8K(16:9)": (7680, 4320)}
+theme_list = [
+    "litera",
+    "cerulean",
+    "cosmo",
+    "cyborg",
+    "darkly",
+    "flatly",
+    "journal",
+    "lumen",
+    "lux",
+    "minty",
+    "morph",
+    "pulse",
+    "sandstone",
+    "simplex",
+    "sketchy",
+    "slate",
+    "solar",
+    "spacelab",
+    "superhero",
+    "united",
+    "yeti"]
+
+
+def set_window_propertys():
     """
     Here we configure how the window will be looking
     We also check for settings here and implement these here
     """
+    #set_man.set_settings_key("visual_data", "color_scheme", "cyborg")
 
+    scheme = str(set_man.get_settings("visual_data", "color_scheme"))
+    # FIXME: Seems like this has a problem with different themes?
+    root_window = tb.Window(themename=scheme)
 
+    #set_man.set_settings_key("visual_data", "size", (800, 600))
+    # size now returns a tuple (x,y) which is getting unpacked here
+    window_width, window_height = set_man.get_settings("visual_data", "size")
+
+    root_window.protocol("WM_DELETE_WINDOW", on_closing)
+    root_window.title("Learnhelper")
 
     screen_width = root_window.winfo_screenwidth()
     screen_height = root_window.winfo_screenheight()
-    window_width = 800
-    window_height = 600
+    # use this t position the window in the middle of the screen
     position_right = int(screen_width / 2 - window_width / 2)
     position_down = int(screen_height / 2 - window_height / 2)
+
     root_window.geometry(f"{window_width}x{window_height}+{position_right}+{position_down}")
-    root_window.minsize(width=300, height=300)
-    root_window.maxsize(width=800, height=800)
+    root_window.minsize(640, 480)
+    root_window.maxsize(width=screen_width, height=screen_height)
     root_window.resizable(width=True, height=True)
 
+    # add grinds, only if needed
+    root_window.grid_rowconfigure(0, weight=1)
+    root_window.grid_columnconfigure(0, weight=1)
+
+    return root_window
 def test():
     # TODO: Change this to the mainfile. In this file should only be the init of frames
     set_man.import_settings()
 
 # # # # # Infos to window and init of window # # # #
-    #set_man.set_settings_key("visual_data", "color_scheme", "cosmo")
 
-    scheme = str(set_man.get_settings("visual_data", "color_scheme"))
-    if scheme == "default":
-        base = tb.Window(themename="litera")
-        # FIXME: Seems like this has a problem with different themes?
-    else:
-        base = tb.Window(themename=scheme)
-
-    #set_man.set_settings_key("visual_data", "size", "800x500")
-
-    # size = str(set_man.get_settings("visual_data", "size"))
-    # if size == "default":
-    #     base.geometry("500x350")
-    # else:
-    #     base.geometry(size)
-    set_window_propertys(base)
-    base.protocol("WM_DELETE_WINDOW", on_closing)
-    base.title("Learnhelper")
-    base.grid_rowconfigure(0, weight=1)
-    base.grid_columnconfigure(0, weight=1)
-
+    base = set_window_propertys()
 
 # # # # # adding all views to the viewmanager # # # # #
 
