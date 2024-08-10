@@ -152,6 +152,9 @@ def settings_menu_frame(*xargs):
     :return:
     """
     pass
+
+
+# # # # creation fo classes for each "View" (Frame) to show # # # #
 class StartFrame(tb.Frame):
     def __init__(self, master=None):
         super().__init__(master)
@@ -209,15 +212,88 @@ class MainMenuFrame(tb.Frame):
             button.place(relx=0.5, rely=start_y + i * button_height, anchor='n', bordermode='outside')
             button.configure(width=button_width)
 
+# TODO: TestStartFrame
+class TestStartFrame(tb.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
 
+        pass
+
+
+# TODO:  class TestQuestionFrame
+class TestQuestionFrame(tb.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+
+        pass
+
+
+# TODO: class CheckTestFrame
+class CheckTestFrame(tb.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+
+        pass
+
+
+# TODO: class TestResultFrame
+class TestResultFrame(tb.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+
+        pass
+
+
+# TODO: class QuestionMenuFrame
+class QuestionMenuFrame(tb.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+
+        pass
+
+
+# TODO: class SettingsFrame
+class SettingsFrame(tb.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+
+        pass
+
+
+# TODO: class PersonSettingsFrame
+class PersonSettingsFrame(tb.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+
+        pass
+# # # #  Function for changing what is happening on window close # # # #
 def on_closing():
     base = ViewManager.get_instance().get_view("base")
     if messagebox.askokcancel("Beenden", "Möchten Sie die Anwendung wirklich schließen?"):
+        # TODO: Save stuff based on position the person is on (like in a test)
         base.destroy()  # Schließt das Fenster
 
+def set_window_propertys(root_window):
+    """
+    Here we configure how the window will be looking
+    We also check for settings here and implement these here
+    """
+
+
+
+    screen_width = root_window.winfo_screenwidth()
+    screen_height = root_window.winfo_screenheight()
+    window_width = 800
+    window_height = 600
+    position_right = int(screen_width / 2 - window_width / 2)
+    position_down = int(screen_height / 2 - window_height / 2)
+    root_window.geometry(f"{window_width}x{window_height}+{position_right}+{position_down}")
+    root_window.minsize(width=300, height=300)
+    root_window.maxsize(width=800, height=800)
+    root_window.resizable(width=True, height=True)
 
 def test():
-
+    # TODO: Change this to the mainfile. In this file should only be the init of frames
     set_man.import_settings()
 
 # # # # # Infos to window and init of window # # # #
@@ -226,17 +302,18 @@ def test():
     scheme = str(set_man.get_settings("visual_data", "color_scheme"))
     if scheme == "default":
         base = tb.Window(themename="litera")
+        # FIXME: Seems like this has a problem with different themes?
     else:
         base = tb.Window(themename=scheme)
 
     #set_man.set_settings_key("visual_data", "size", "800x500")
 
-    size = str(set_man.get_settings("visual_data", "size"))
-    if size == "default":
-        base.geometry("500x350")
-    else:
-        base.geometry(size)
-
+    # size = str(set_man.get_settings("visual_data", "size"))
+    # if size == "default":
+    #     base.geometry("500x350")
+    # else:
+    #     base.geometry(size)
+    set_window_propertys(base)
     base.protocol("WM_DELETE_WINDOW", on_closing)
     base.title("Learnhelper")
     base.grid_rowconfigure(0, weight=1)
@@ -250,21 +327,23 @@ def test():
     vm.add_view("start_frame", StartFrame(base))
 
     vm.add_view("main_menu_frame", MainMenuFrame(base))
-    vm.add_view("test_start_frame", tb.Frame(base))
-    vm.add_view("test_question_frame", tb.Frame(base))
-    vm.add_view("test_result_choice_frame", tb.Frame(base))
-    vm.add_view("test_result_frame", tb.Frame(base))
-    vm.add_view("question_frame", tb.Frame(base))
-    vm.add_view("settings_frame", tb.Frame(base))
+    vm.add_view("test_start_frame", TestStartFrame(base))
+    vm.add_view("test_question_frame", TestQuestionFrame(base))
+    vm.add_view("check_test_frame", CheckTestFrame(base))
+    vm.add_view("test_result_frame", TestResultFrame(base))
+    vm.add_view("question_menu_frame", QuestionMenuFrame(base))
+    vm.add_view("settings_frame", SettingsFrame(base))
+    vm.add_view("person_settings_frame", PersonSettingsFrame(base))
 
-    liste: dict = vm.get_view_list()
-    for key, fr in liste.items():
+    list_views: dict = vm.get_view_list()
+    for key, fr in list_views.items():
         if key == "base":
             continue
         else:
             fr.grid(row=0, column=0, sticky='nsew')
 
     # check if settings already exist, if no we have default of ID 0, then the start frame needs to be called
+    # FIXME: We need to load the view new(init it new) to get the right infos in it , like person data
     if set_man.get_settings("person_data", "id") == 0:
         # need to open the init screen for setting user
         vm.get_view("start_frame").tkraise()

@@ -5,7 +5,7 @@ the app starts. With this we have access to
         "visual_data": {"color_scheme" , "size" },
         "db_data": {"host" , "user" , "password" , "database" }
 """
-
+# TODO: Better documentation here
 import json
 from os import path
 import traceback
@@ -20,6 +20,8 @@ class InvalidSettingsKey(Exception):
         super().__init__(message)
         self.error_code = error_code
         self.traceback = ''.join(traceback.format_stack())
+
+
 class SettingsManager:
     """
     Has access to
@@ -97,7 +99,7 @@ class SettingsManager:
 
 
 # # # # # Code to test # # # # #
-
+# TODO: On release remove test block
 def test():
     print("Testing:")
 
@@ -110,7 +112,7 @@ def test():
         settings.import_settings()
 
     # raises an error if invalid keys are searched for (based on the init of the class)
-    #print(settings.get_settings('person_data', "database"))
+    # print(settings.get_settings('person_data', "database"))
 
     settings.set_settings_key('person_data', 'name', 'Peter Maffay')
     print(settings.get_settings('db_data'))

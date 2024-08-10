@@ -267,7 +267,7 @@ def delete_person_data(person_id: int) -> None:
     
 
 # # # # # Code to test # # # # #
-
+# TODO: On release remove test block
 def test():
     quest_id = 3
     # maybe you need to change the ID you give out for testing (database AUTO_INCREMENT can be a lil tricky sometimes)
