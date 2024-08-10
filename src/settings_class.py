@@ -2,7 +2,8 @@
 This class is adding the option to save config data locally onthe client and read it in before
 the app starts. With this we have access to
         "person_data": {"id", "name" , "password"},
-        "visual_data": {"color_scheme" , "size" },
+        "visual_data": {"theme" , "resolution" },
+        resolution = tuple[x,y]
         "db_data": {"host" , "user" , "password" , "database" }
 """
 # TODO: Better documentation here
@@ -26,7 +27,7 @@ class SettingsManager:
     """
     Has access to
         "person_data": {"id", "name" , "password"},
-        "visual_data": {"color_scheme" , "size" },
+        "visual_data": {"theme" , "resolution" },
         size = tuple(x,y)
         "db_data": {"host" , "user" , "password" , "database" }
     """
@@ -35,7 +36,7 @@ class SettingsManager:
         self.__filepath = filepath
         self.__settings = {
             "person_data": {"id": 0, "name": "empty", "password": "<PASSWORD>"},
-            "visual_data": {"color_scheme": "litera", "size": (800, 600)},
+            "visual_data": {"theme": "litera", "resolution": (800, 600)},
             "db_data": {"host": "localhost", "user": "root", "password": "12345", "database": "learnhelper"}
         }
 

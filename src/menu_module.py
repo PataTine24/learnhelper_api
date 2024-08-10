@@ -155,25 +155,38 @@ def settings_menu_frame(*xargs):
 
 
 # # # # creation fo classes for each "View" (Frame) to show # # # #
-class StartFrame(tb.Frame):
-    def __init__(self, master=None):
-        super().__init__(master)
 
+# TODO: All Frame widgets need to be changed, so they can be restyled
+#  seems like some options used make it impossible to change the looks. Only settings so far works.
+class ExFrame(tb.Frame):
+    def __init__(self, master):
+        super().__init__(master)
+        self._master = master
+
+    def load_me(self, *xargs):
+        self.tkraise()
+        pass
+
+class StartFrame(ExFrame):
+    def __init__(self, master):
+        super().__init__(master)
         tmp = db.get_person_list()
+
         self.person_list = []
         self.index_to_id_list = []
         for p_id, person in tmp:
             self.person_list.append(person)
             self.index_to_id_list.append(p_id)
 
-        dropdown_width = max(max(len(item) for item in self.person_list) + 2, 25)
+
 
         self.label1 = tb.Label(self, text="Settings sind leer.", font=("Arial", 18), bootstyle="success")
         self.label1.pack(pady=5, padx=30)
         self.label2 = tb.Label(self, text="Wählen sie einen Login aus:", font=("Arial", 18), bootstyle="success")
         self.label2.pack(pady=10, padx=30)
 
-        self.dropdown = tb.Combobox(self, width=25)
+        dropdown_width = max(max(len(item) for item in self.person_list) + 2, 25)
+        self.dropdown = tb.Combobox(self, width=dropdown_width)
         self.dropdown.pack(pady=20, side='top', padx=10)#fill="both", expand=True, pady=20)
         self.dropdown.config(state="readonly")
         self.dropdown['values'] = self.person_list
@@ -190,92 +203,197 @@ class StartFrame(tb.Frame):
         set_man.set_settings_key("person_data", "name", self.person_list[ind_drop])
         ViewManager.get_instance().get_view("MainMenuFrame").load_me()
 
-class MainMenuFrame(tb.Frame):
-    def __init__(self, master=None):
-        super().__init__(master)
-        self._master = master
-        person_name = set_man.get_settings("person_data", "name")
+    def load_me(self, *xargs):
 
-        lab = tb.Label(self, text=f"Eingeloggt als {person_name}", font=("Consolas", 20), bootstyle="success")
-        lab.place(relx=0.5, rely=0.1, anchor='n', bordermode='outside')
+        pass
+
+
+class MainMenuFrame(ExFrame):
+    def __init__(self, master):
+        super().__init__(master)
+
+        person_name = set_man.get_settings("person_data", "name")
+        self.login_label = tb.Label(self, text=f"Eingeloggt als {person_name}", font=("Consolas", 20), bootstyle="success")
+        self.login_label.place(relx=0.5, rely=0.1, anchor='n', bordermode='outside')
 
         # Dynamische Button-Platzierung
         button_height = 0.1  # Höhe, die jeder Button in Anspruch nimmt (10% des Fensters)
         start_y = 0.3  # Start-Y-Position
-
+        # TODO: Later do all text things with a language file, based on user language and default in english
+        #  so we can change per language what you see (Only menus, but not questions & answers)
         menu_list = [["Start Test", "Check Tests", "Person Menu", "Questions Menu", "Settings"],
-                     [start_test_frame, check_test_frame, person_menu_frame, questions_menu_frame, settings_menu_frame]]
+                     ["TestStartFrame", "CheckTestFrame", "PersonMenuFrame", "QuestionMenuFrame", "SettingsFrame"]]
         button_width = max(max(len(item) for item in menu_list[0])+2, 25)
 
+        # FIXME: seems like the lambda is allways calling the SettingsFrame or better the button event allways calls it
         for i in range(len(menu_list[0])):
-            link_func = menu_list[1][i]
-            button = tb.Button(self, text=menu_list[0][i], bootstyle="success, outline", command=link_func)
+            button = tb.Button(self, text=menu_list[0][i], bootstyle="success, outline",
+                               command=lambda: self.load_frame(menu_list[1][i]))
             button.place(relx=0.5, rely=start_y + i * button_height, anchor='n', bordermode='outside')
             button.configure(width=button_width)
 
-    def load_me(self):
-        # this works only if the viewmanager has the viewname as the classname
-        secondary = MainMenuFrame(self._master)
-        ViewManager.get_instance().add_view(self.__class__.__name__, secondary)
-        secondary.grid(row=0, column=0, sticky='nsew')
-        secondary.tkraise()
-        self.destroy()
+    def load_frame(self, frameName:str):
+        print(frameName)
+        ViewManager.get_instance().get_view(frameName).load_me()
 
+    def load_me(self, *xargs):
+        person_name = set_man.get_settings("person_data", "name")
+        self.login_label.config(text=f"Eingeloggt als {person_name}")
+        self.tkraise()
 
 
 # TODO: TestStartFrame
-class TestStartFrame(tb.Frame):
-    def __init__(self, master=None):
+class TestStartFrame(ExFrame):
+    def __init__(self, master):
         super().__init__(master)
 
+    def load_me(self, *xargs):
         pass
 
 
 # TODO:  class TestQuestionFrame
-class TestQuestionFrame(tb.Frame):
-    def __init__(self, master=None):
+class TestQuestionFrame(ExFrame):
+    def __init__(self, master):
         super().__init__(master)
 
+    def load_me(self, *xargs):
         pass
 
 
 # TODO: class CheckTestFrame
-class CheckTestFrame(tb.Frame):
-    def __init__(self, master=None):
+class CheckTestFrame(ExFrame):
+    def __init__(self, master):
         super().__init__(master)
 
+    def load_me(self, *xargs):
         pass
 
 
 # TODO: class TestResultFrame
-class TestResultFrame(tb.Frame):
-    def __init__(self, master=None):
+class TestResultFrame(ExFrame):
+    def __init__(self, master):
         super().__init__(master)
 
+    def load_me(self, *xargs):
         pass
 
 
 # TODO: class QuestionMenuFrame
-class QuestionMenuFrame(tb.Frame):
-    def __init__(self, master=None):
+class QuestionMenuFrame(ExFrame):
+    def __init__(self, master):
         super().__init__(master)
 
+    def load_me(self, *xargs):
         pass
 
 
 # TODO: class SettingsFrame
-class SettingsFrame(tb.Frame):
-    def __init__(self, master=None):
+class SettingsFrame(ExFrame):
+    def __init__(self, master):
         super().__init__(master)
+        self._dict_resolution: dict[str, tuple[int, int]] = {
+            "VGA(4:3)": (640, 480),
+            "SVGA(4:3)": (800, 600),
+            "XGA(4:3)": (1024, 768),
+            "HD(16:9)": (1280, 720),
+            "WXGA(16:10)": (1280, 800),
+            "HD(16:9)": (1366, 768),
+            "WXGA+(16:10)": (1440, 900),
+            "HD+(16:9)": (1600, 900),
+            "WSXGA+(16:10)": (1680, 1050),
+            "FULL HD (16:9)": (1920, 1080),
+            "WUXGA(16:10)": (1920, 1200),
+            "QHD/2K(16:9)": (2560, 1440),
+            "WQXGA(16:10)": (2560, 1600),
+            "4K UHD(16:9)": (3840, 2160),
+            "5K(16:9)": (5120, 2880),
+            "8K(16:9)": (7680, 4320)}
+        self._theme_list = [
+            "litera",
+            "cerulean",
+            "cosmo",
+            "cyborg",
+            "darkly",
+            "flatly",
+            "journal",
+            "lumen",
+            "lux",
+            "minty",
+            "morph",
+            "pulse",
+            "sandstone",
+            "simplex",
+            "sketchy",
+            "slate",
+            "solar",
+            "spacelab",
+            "superhero",
+            "united",
+            "yeti"]
+        self._gen_themes = self._master.style.theme_names()
+        self._dropdown_themes = tb.Combobox(self, values=self._gen_themes, state="readonly")
+        self._dropdown_themes.set(self._master.style.theme_use())
+        self._dropdown_themes.pack(pady=20, padx=50)
 
-        pass
+        self._d_res_values = [f"{key}: {value[0]}x{value[1]}"for key, value in self._dict_resolution.items()]
+        self._dropdown_resolution = tb.Combobox(self, values=self._d_res_values, state="readonly")
+        self._dropdown_resolution.current(0)
+        self._dropdown_resolution.pack(pady=20, padx=10)
+
+        self._apply_button = tb.Button(self, text="APPLY", command=self._apply_changes)
+        self._apply_button.pack(pady=60, padx=10)
+
+        self._save_button = tb.Button(self, text="SAVE CHANGES", command=self._save_changes)
+        self._save_button.pack(pady=60, padx=50)
+
+        self._cancel_button = tb.Button(self, text="CANCEL", command=self._drop_changes)
+        self._cancel_button.pack(pady=60, padx=100)
+
+    def _apply_changes(self):
+        self._master.style.theme_use(self._dropdown_themes.get())
+        ind = self._dropdown_resolution.current()
+
+        selected_key = list(self._dict_resolution.keys())[ind]
+        entry = self._dict_resolution[selected_key]
+
+        new_res = f"{entry[0]}x{entry[1]}"
+        self._master.geometry(new_res)
+
+    def _save_changes(self):
+        new_theme = self._dropdown_themes.get()
+        ind = self._dropdown_resolution.current()
+
+        selected_key = list(self._dict_resolution.keys())[ind]
+        reso = self._dict_resolution[selected_key]
+
+        set_man.set_settings_key("visual_data", "resolution", reso)
+        set_man.set_settings_key("visual_data", "theme", new_theme)
+        ViewManager.get_instance().get_view("MainMenuFrame").load_me()
+
+    def _drop_changes(self):
+        ViewManager.get_instance().get_view("MainMenuFrame").load_me()
+
+    def load_me(self, *xargs):
+        self._dropdown_themes.set(self._master.style.theme_use())
+        self._dropdown_resolution.current(0)
+        self.tkraise()
 
 
 # TODO: class PersonSettingsFrame
-class PersonSettingsFrame(tb.Frame):
-    def __init__(self, master=None):
+class PersonSettingsFrame(ExFrame):
+    def __init__(self, master):
         super().__init__(master)
 
+    def load_me(self, *xargs):
+        pass
+
+
+# TODO: class PersonMenuFrame
+class PersonMenuFrame(ExFrame):
+    def __init__(self, master):
+        super().__init__(master)
+
+    def load_me(self, *xargs):
         pass
 
 
@@ -288,62 +406,24 @@ def on_closing():
 
 
 # TODO: change to proper area in code
-dict_window_sizes: dict[str, tuple[int, int]] = {
-    "VGA(4:3)": (640, 480),
-    "SVGA(4:3)": (800, 600),
-    "XGA(4:3)": (1024, 768),
-    "HD(16:9)": (1280, 720),
-    "WXGA(16:10)": (1280, 800),
-    "HD(16:9)": (1366, 768),
-    "WXGA+(16:10)": (1440, 900),
-    "HD+(16:9)": (1600, 900),
-    "WSXGA+(16:10)": (1680, 1050),
-    "FULL HD (16:9)": (1920, 1080),
-    "WUXGA(16:10)": (1920, 1200),
-    "QHD/2K(16:9)": (2560, 1440),
-    "WQXGA(16:10)": (2560, 1600),
-    "4K UHD(16:9)": (3840, 2160),
-    "5K(16:9)": (5120, 2880),
-    "8K(16:9)": (7680, 4320)}
-theme_list = [
-    "litera",
-    "cerulean",
-    "cosmo",
-    "cyborg",
-    "darkly",
-    "flatly",
-    "journal",
-    "lumen",
-    "lux",
-    "minty",
-    "morph",
-    "pulse",
-    "sandstone",
-    "simplex",
-    "sketchy",
-    "slate",
-    "solar",
-    "spacelab",
-    "superhero",
-    "united",
-    "yeti"]
 
 
-def set_window_propertys():
+
+def set_window_properties():
     """
     Here we configure how the window will be looking
     We also check for settings here and implement these here
     """
     #set_man.set_settings_key("visual_data", "color_scheme", "cyborg")
 
-    scheme = str(set_man.get_settings("visual_data", "color_scheme"))
+    theme = str(set_man.get_settings("visual_data", "theme"))
     # FIXME: Seems like this has a problem with different themes?
     #  Maybe they are changing different things we dont see in our project so far
-    root_window = tb.Window(themename=scheme)
+    root_window = tb.Window(themename=theme)
 
     #set_man.set_settings_key("visual_data", "size", (800, 600))
     # size now returns a tuple (x,y) which is getting unpacked here
-    window_width, window_height = set_man.get_settings("visual_data", "size")
+    window_width, window_height = set_man.get_settings("visual_data", "resolution")
 
     root_window.protocol("WM_DELETE_WINDOW", on_closing)
     root_window.title("Learnhelper")
@@ -370,7 +450,7 @@ def test():
 
 # # # # # Infos to window and init of window # # # #
 
-    base = set_window_propertys()
+    base = set_window_properties()
 
 # # # # # adding all views to the viewmanager # # # # #
 
@@ -386,6 +466,7 @@ def test():
     vm.add_view("QuestionMenuFrame", QuestionMenuFrame(base))
     vm.add_view("SettingsFrame", SettingsFrame(base))
     vm.add_view("PersonSettingsFrame", PersonSettingsFrame(base))
+    vm.add_view("PersonMenuFrame", PersonMenuFrame(base))
 
     list_views: dict = vm.get_view_list()
     for key, fr in list_views.items():
