@@ -221,19 +221,18 @@ class MainMenuFrame(ExFrame):
         start_y = 0.3  # Start-Y-Position
         # TODO: Later do all text things with a language file, based on user language and default in english
         #  so we can change per language what you see (Only menus, but not questions & answers)
-        menu_list = [["Start Test", "Check Tests", "Person Menu", "Questions Menu", "Settings"],
-                     ["TestStartFrame", "CheckTestFrame", "PersonMenuFrame", "QuestionMenuFrame", "SettingsFrame"]]
+        menu_list = [["Start Test", "Check Tests",  "Questions Menu", "Person Menu", "Settings"],
+                     ["StartTestFrame", "CheckTestFrame",  "QuestionMenuFrame", "PersonMenuFrame", "SettingsFrame"]]
         button_width = max(max(len(item) for item in menu_list[0])+2, 25)
 
         # FIXME: seems like the lambda is allways calling the SettingsFrame or better the button event allways calls it
         for i in range(len(menu_list[0])):
             button = tb.Button(self, text=menu_list[0][i], bootstyle="success, outline",
-                               command=lambda: self.load_frame(menu_list[1][i]))
+                               command=lambda x=i: self.load_frame(menu_list[1][x]))
             button.place(relx=0.5, rely=start_y + i * button_height, anchor='n', bordermode='outside')
             button.configure(width=button_width)
 
     def load_frame(self, frameName:str):
-        print(frameName)
         ViewManager.get_instance().get_view(frameName).load_me()
 
     def load_me(self, *xargs):
@@ -242,8 +241,8 @@ class MainMenuFrame(ExFrame):
         self.tkraise()
 
 
-# TODO: TestStartFrame
-class TestStartFrame(ExFrame):
+# TODO: StartTestFrame
+class StartTestFrame(ExFrame):
     def __init__(self, master):
         super().__init__(master)
 
@@ -354,10 +353,15 @@ class SettingsFrame(ExFrame):
         ind = self._dropdown_resolution.current()
 
         selected_key = list(self._dict_resolution.keys())[ind]
-        entry = self._dict_resolution[selected_key]
+        x_y = self._dict_resolution[selected_key]
 
-        new_res = f"{entry[0]}x{entry[1]}"
-        self._master.geometry(new_res)
+        screen_width = self._master.winfo_screenwidth()
+        screen_height = self._master.winfo_screenheight()
+        position_right = int(screen_width / 2 - x_y[0] / 2)
+        position_down = int(screen_height / 2 - x_y[1] / 2)
+
+        self._master.geometry(f"{x_y[0]}x{x_y[1]}+{position_right}+{position_down}")
+
 
     def _save_changes(self):
         new_theme = self._dropdown_themes.get()
@@ -459,7 +463,7 @@ def test():
     vm.add_view("StartFrame", StartFrame(base))
 
     vm.add_view("MainMenuFrame", MainMenuFrame(base))
-    vm.add_view("TestStartFrame", TestStartFrame(base))
+    vm.add_view("StartTestFrame", StartTestFrame(base))
     vm.add_view("TestQuestionFrame", TestQuestionFrame(base))
     vm.add_view("CheckTestFrame", CheckTestFrame(base))
     vm.add_view("TestResultFrame", TestResultFrame(base))
