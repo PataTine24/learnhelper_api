@@ -48,112 +48,6 @@ class ViewManager:
         return self._views
 
 
-
-def menu_wrapper(*xargs):
-    """
-    Close program
-    Settings Menu
-    on specified positions for all views
-    :return:
-    """
-    pass
-
-
-def start_screen(*xargs):
-    """
-    Basically the first view/menu/screen shown at the start of the application where you have to choose
-    a person for the config/ if not self exists add a new person to DB and save it to personal settings
-    if person is set allready in config ( not 0)  then greet the person(or show directly main menu)
-    :return:
-    """
-
-
-    pass
-
-
-def main_menu(*xargs):
-    """
-    Needs to have  link to
-    test_start_menu
-    check_test_menu
-    person_menu (add/delete/update)
-    questions_menu (add/delete/update)
-    opened in menu_wrapper
-    :return:
-    """
-    pass
-
-
-def start_test_frame(*xargs):
-    """
-    choose test type (from all types and if there is a parent (question)type show child types)
-    choose number of questions (text field)
-    Main Menu (Back link)
-    opened in menu_wrapper
-    :return:
-    """
-    pass
-
-
-def test_result_menu(*xargs):
-    """
-    Shows all questions & answers from one test
-    Needs to have a collection for each question + answers belonging to it
-    and mark the answers given and show point result on the side.
-    opened in menu_wrapper
-    :return:
-    """
-    pass
-
-
-def test_question_menu(*xargs):
-    """
-    Shows one question with answers
-    and makes it possible to choose
-    the answer and go on to next.
-    opened in menu_wrapper
-    :return:
-    """
-    pass
-
-
-
-def check_test_frame(*xargs):
-    """
-    Choose a test to look into
-    opened in menu_wrapper
-    :return:
-    """
-    pass
-
-
-def person_menu_frame(*xargs):
-    """
-    choose between adding/checkin or deleting a person.
-    opened in menu_wrapper
-    :return:
-    """
-    pass
-
-
-def questions_menu_frame(*xargs):
-    """
-    choose between adding/checkin(updating) or deleting a question.
-    opened in menu_wrapper
-    :return:
-    """
-    pass
-
-
-def settings_menu_frame(*xargs):
-    """
-    Return to main menu for navigating only
-    Change person/login, menu looks and maybe more later
-    :return:
-    """
-    pass
-
-
 # # # # creation fo classes for each "View" (Frame) to show # # # #
 
 # TODO: All Frame widgets need to be changed, so they can be restyled
@@ -225,7 +119,6 @@ class MainMenuFrame(ExFrame):
                      ["StartTestFrame", "CheckTestFrame",  "QuestionMenuFrame", "PersonMenuFrame", "SettingsFrame"]]
         button_width = max(max(len(item) for item in menu_list[0])+2, 25)
 
-        # FIXME: seems like the lambda is allways calling the SettingsFrame or better the button event allways calls it
         for i in range(len(menu_list[0])):
             button = tb.Button(self, text=menu_list[0][i], bootstyle="success, outline",
                                command=lambda x=i: self.load_frame(menu_list[1][x]))
@@ -243,6 +136,11 @@ class MainMenuFrame(ExFrame):
 
 # TODO: StartTestFrame
 class StartTestFrame(ExFrame):
+    """
+        choose test type (from all types and if there is a parent (question)type show child types)
+    choose number of questions (text field)
+    Main Menu (Back link)
+    """
     def __init__(self, master):
         super().__init__(master)
 
@@ -250,8 +148,12 @@ class StartTestFrame(ExFrame):
         pass
 
 
+
 # TODO:  class TestQuestionFrame
 class TestQuestionFrame(ExFrame):
+    """    Shows one question with answers
+    and makes it possible to choose
+    the answer and go on to next."""
     def __init__(self, master):
         super().__init__(master)
 
@@ -261,6 +163,9 @@ class TestQuestionFrame(ExFrame):
 
 # TODO: class CheckTestFrame
 class CheckTestFrame(ExFrame):
+    """Choose a test to look into
+    Only the persons own,
+    later people can have pupils, where they can also check into"""
     def __init__(self, master):
         super().__init__(master)
 
@@ -270,6 +175,12 @@ class CheckTestFrame(ExFrame):
 
 # TODO: class TestResultFrame
 class TestResultFrame(ExFrame):
+    """
+    Shows all questions & answers from one test
+    Will be called after a test is finished and shows that test only
+    Needs to have a collection for each question + answers belonging to it
+    and mark the answers given and show point result on the side.
+    """
     def __init__(self, master):
         super().__init__(master)
 
@@ -279,6 +190,7 @@ class TestResultFrame(ExFrame):
 
 # TODO: class QuestionMenuFrame
 class QuestionMenuFrame(ExFrame):
+    """choose between adding/checkin(updating) or deleting a question."""
     def __init__(self, master):
         super().__init__(master)
 
@@ -286,7 +198,8 @@ class QuestionMenuFrame(ExFrame):
         pass
 
 
-# TODO: class SettingsFrame
+# TODO: format the widgets / align them properly
+#  ??? Should also be able to set the login
 class SettingsFrame(ExFrame):
     def __init__(self, master):
         super().__init__(master)
@@ -307,46 +220,25 @@ class SettingsFrame(ExFrame):
             "4K UHD(16:9)": (3840, 2160),
             "5K(16:9)": (5120, 2880),
             "8K(16:9)": (7680, 4320)}
-        self._theme_list = [
-            "litera",
-            "cerulean",
-            "cosmo",
-            "cyborg",
-            "darkly",
-            "flatly",
-            "journal",
-            "lumen",
-            "lux",
-            "minty",
-            "morph",
-            "pulse",
-            "sandstone",
-            "simplex",
-            "sketchy",
-            "slate",
-            "solar",
-            "spacelab",
-            "superhero",
-            "united",
-            "yeti"]
+
         self._gen_themes = self._master.style.theme_names()
         self._dropdown_themes = tb.Combobox(self, values=self._gen_themes, state="readonly")
         self._dropdown_themes.set(self._master.style.theme_use())
-        self._dropdown_themes.pack(pady=20, padx=50)
-
+        self._dropdown_themes.pack()
+        # TODO: Add example widgets to show the visual change
         self._d_res_values = [f"{key}: {value[0]}x{value[1]}"for key, value in self._dict_resolution.items()]
         self._dropdown_resolution = tb.Combobox(self, values=self._d_res_values, state="readonly")
         self._dropdown_resolution.current(0)
-        self._dropdown_resolution.pack(pady=20, padx=10)
+        self._dropdown_resolution.pack()
 
         self._apply_button = tb.Button(self, text="APPLY", command=self._apply_changes)
-        self._apply_button.pack(pady=60, padx=10)
+        self._apply_button.pack()
 
         self._save_button = tb.Button(self, text="SAVE CHANGES", command=self._save_changes)
-        self._save_button.pack(pady=60, padx=50)
+        self._save_button.pack()
 
         self._cancel_button = tb.Button(self, text="CANCEL", command=self._drop_changes)
-        self._cancel_button.pack(pady=60, padx=100)
+        self._cancel_button.pack()
 
     def _apply_changes(self):
         self._master.style.theme_use(self._dropdown_themes.get())
@@ -383,22 +275,59 @@ class SettingsFrame(ExFrame):
         self.tkraise()
 
 
-# TODO: class PersonSettingsFrame
-class PersonSettingsFrame(ExFrame):
-    def __init__(self, master):
-        super().__init__(master)
-
-    def load_me(self, *xargs):
-        pass
-
-
-# TODO: class PersonMenuFrame
+# TODO: format the widgets / align them properly
+#  choose between adding/checkin or deleting a person.
+#  Add a recheck before updating/deleteing/adding with quotes: "Anna Banana" trim spaces end/start
 class PersonMenuFrame(ExFrame):
     def __init__(self, master):
         super().__init__(master)
+        tmp = db.get_person_list()
+
+        set_id = set_man.get_settings("person_data", "id")
+        self.person_list = []
+        self.index_to_id_list = []
+        for p_id, person in tmp:
+            self.person_list.append(person)
+            self.index_to_id_list.append(p_id)
+
+
+        self.label = tb.Label(self, text="Wählen sie einen Login aus:")
+        self.label.pack(pady=10, padx=30)
+
+        dropdown_width = max(max(len(item) for item in self.person_list) + 2, 25)
+        self.dropdown = tb.Combobox(self, width=dropdown_width)
+        self.dropdown.pack(pady=20, side='top', padx=10)
+        self.dropdown.config(state="readonly")
+        self.dropdown['values'] = self.person_list
+        self.dropdown.current(self.index_to_id_list.index(set_id))
+
+        self._save_button = tb.Button(self, text="SAVE CHANGES", command=self._save_changes)
+        self._save_button.pack()
+
+        self._cancel_button = tb.Button(self, text="CANCEL", command=self._drop_changes)
+        self._cancel_button.pack()
+
+    def _save_changes(self):
+
+        set_man.set_settings_key("person_data", "id", self.index_to_id_list[self.dropdown.current()])
+        set_man.set_settings_key("person_data", "name", self.person_list[self.dropdown.current()])
+        ViewManager.get_instance().get_view("MainMenuFrame").load_me()
+
+    def _drop_changes(self):
+        ViewManager.get_instance().get_view("MainMenuFrame").load_me()
 
     def load_me(self, *xargs):
-        pass
+        set_id = set_man.get_settings("person_data", "id")
+        tmp = db.get_person_list()
+        self.person_list = []
+        self.index_to_id_list = []
+        for p_id, person in tmp:
+            self.person_list.append(person)
+            self.index_to_id_list.append(p_id)
+        self.dropdown['values'] = self.person_list
+        self.dropdown.current(self.index_to_id_list.index(set_id))
+        self.tkraise()
+
 
 
 # # # #  Function for changing what is happening on window close # # # #
@@ -469,7 +398,6 @@ def test():
     vm.add_view("TestResultFrame", TestResultFrame(base))
     vm.add_view("QuestionMenuFrame", QuestionMenuFrame(base))
     vm.add_view("SettingsFrame", SettingsFrame(base))
-    vm.add_view("PersonSettingsFrame", PersonSettingsFrame(base))
     vm.add_view("PersonMenuFrame", PersonMenuFrame(base))
 
     list_views: dict = vm.get_view_list()
