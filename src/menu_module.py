@@ -8,11 +8,12 @@ which reads out all vars from fields that can be changed
 
 """
 import random
-from tkinter import ttk
 
+from abc import abstractmethod, ABC
 import mysqlmodule as db
 import ttkbootstrap as tb
-from ttkbootstrap import Window
+import ttkbootstrap.constants as tbc
+import tkinter as tk
 from settings_class import SettingsManager
 from tkinter import messagebox
 
@@ -52,13 +53,13 @@ class ViewManager:
 
 # TODO: All Frame widgets need to be changed, so they can be restyled
 #  seems like some options used make it impossible to change the looks. Only settings so far works.
-class ExFrame(tb.Frame):
+class ExFrame(tb.Frame, ABC):
     def __init__(self, master):
         super().__init__(master)
         self._master = master
 
+    @abstractmethod
     def load_me(self, *xargs):
-        self.tkraise()
         pass
 
 class StartFrame(ExFrame):
@@ -86,11 +87,11 @@ class StartFrame(ExFrame):
         self.dropdown['values'] = self.person_list
         self.dropdown.current(0)
 
-        self.forward_button = tb.Button(self, bootstyle="success", text="weiter")
-        self.forward_button.pack(padx=20, pady=5)
-        self.forward_button.bind("<ButtonRelease-1>", self.continue_to_main)
+        self._save_button = tb.Button(self, text="SAVE", command=self._continue_to_main)
+        self._save_button.pack(padx=20, pady=5)
 
-    def continue_to_main(self, *xargs):
+
+    def _continue_to_main(self, *xargs):
         # TODO: Check if entry exists from DB before setting it in local data (anti hack)
         ind_drop = self.dropdown.current()
         set_man.set_settings_key("person_data", "id", self.index_to_id_list[ind_drop])
@@ -98,7 +99,7 @@ class StartFrame(ExFrame):
         ViewManager.get_instance().get_view("MainMenuFrame").load_me()
 
     def load_me(self, *xargs):
-
+        # no use, because this frame will only be loaded if no person is set, so only once at first start of app
         pass
 
 
@@ -144,8 +145,20 @@ class StartTestFrame(ExFrame):
     def __init__(self, master):
         super().__init__(master)
 
+        self._start_button = tb.Button(self, text="Start Test", command=self._start_test)
+        self._start_button.pack()
+
+        self._cancel_button = tb.Button(self, text="CANCEL", command=self._cancel)
+        self._cancel_button.pack()
+
+    def _start_test(self):
+        new_test_id = 999
+        ViewManager.get_instance().get_view("TestResultFrame").load_me(new_test_id)
+    def _cancel(self):
+        ViewManager.get_instance().get_view("MainMenuFrame").load_me()
+
     def load_me(self, *xargs):
-        pass
+        self.tkraise()
 
 
 
@@ -156,9 +169,90 @@ class TestQuestionFrame(ExFrame):
     the answer and go on to next."""
     def __init__(self, master):
         super().__init__(master)
+        # TODO: remove this temp stuff:
+        self._question_infos_label = tb.Label(self, text="Test Infos")
+        self._question_infos_label.grid(row=0, column=0, sticky=tbc.NSEW)
 
-    def load_me(self, *xargs):
+        # end
+        self._is_singlechoice = True
+        self._question_text = ["popp", "bjkdjkawkdwada", "dhdusuidsuauhdn uidhauiui :duah w WDn  !!:;Jkd", "hdjdjd122"]
+        self._answer_text_a = ["bananas", "sting", "lastline"]
+        self._answer_text_b = ["!hdhdh", "stong"]
+        self._answer_text_c = ["hepp", "-", "space"]
+        self._answer_text_d = ["boop", "doop", ]
+        self._answer_value_a = 123
+        self._answer_value_b = 121
+        self._answer_value_c = 124
+        self._answer_value_d = 122
+
+        # Configure rows and columns in the main frame
+        self.grid_rowconfigure(0, weight=1)  # Upper div
+        self.grid_rowconfigure(1, weight=1)  # Middle div
+        self.grid_rowconfigure(2, weight=0)  # Bottom div
+        self.grid_columnconfigure(0, weight=1)  # Full width
+
+        # Upper div - 50% of the screen height
+        upper_frame = tb.Frame(self, padding="10")
+        upper_frame.grid(row=0, column=0, sticky=tbc.NSEW)
+
+        # Large read-only text area in the upper div
+        self.question_area = tb.Text(upper_frame, wrap=tbc.WORD, height=10, state='disabled')
+        self.question_area.pack(fill=tbc.BOTH, expand=True)
+
+
+
+        # Middle div - 30% of the screen height
+        middle_frame = tb.Frame(self, padding="10")
+        middle_frame.grid(row=1, column=0, sticky=tbc.NSEW)
+
+        # Configure rows in the middle frame
+        for i in range(4):
+            middle_frame.grid_rowconfigure(i, weight=1)
+
+        # Create four boxes with radio buttons and text areas
+        self.radio_var = tk.StringVar()  # Variable to hold the selected radio button
+        win_width = set_man.get_settings("visual_data", "resolution")[0]
+        answer_width = win_width//7
+
+        for i in range(4):
+            row_frame = tb.Frame(middle_frame, padding="5")
+            row_frame.grid(row=i, column=0, sticky=tbc.NSEW)
+
+            if self._is_singlechoice:
+                # Radio button
+                radio_button = tb.Radiobutton(row_frame, variable=self.radio_var,
+                                               value=None)
+                # TODO: Set value for answers
+                radio_button.pack(side=tbc.LEFT, padx=(0, 10))
+            else:
+                checkbox = tb.Checkbutton(row_frame)
+                checkbox.pack(side=tbc.LEFT, padx=(0, 10))
+            # Read-only text area
+            text_area = tb.Text(row_frame, height=2, width=answer_width, state='disabled', wrap=tbc.WORD)
+            text_area.pack(side=tbc.LEFT, fill=tbc.BOTH, expand=True)
+
+        # Bottom div - 20% of the screen height
+        bottom_frame = tb.Frame(self, padding="10")
+        bottom_frame.grid(row=2, column=0, sticky=tbc.EW)
+
+        # Add buttons to the bottom frame
+        left_button = tb.Button(bottom_frame, text="Left Button")
+        left_button.pack(side=tbc.LEFT, padx=(0, 10))
+
+        right_button = tb.Button(bottom_frame, text="Right Button")
+        right_button.pack(side=tbc.RIGHT)
+
+    def _add_radio_buttons(self):
         pass
+
+    def _add_checkboxes(self):
+        pass
+
+    def load_me(self, question_id: int = None, *xargs):
+        if question_id is None:
+            raise ValueError("TestQuestionFrame allways needs a question id")
+        else:
+            self._question_infos_label.config(text=f"question id: {question_id}")
 
 
 # TODO: class CheckTestFrame
@@ -169,8 +263,40 @@ class CheckTestFrame(ExFrame):
     def __init__(self, master):
         super().__init__(master)
 
-    def load_me(self, *xargs):
+        self.dropdown = tb.Combobox(self)
+        self.dropdown.pack(pady=20, side='top', padx=10)
+        self.dropdown.config(state="readonly")
+        self.dropdown['values'] = ["empty"]
+        self.dropdown.current(0)
+        self._dropdown_indexes = []
+        self._dropdown_values = []
+
+        self._check_button = tb.Button(self, text="CHECK", command=self._check)
+        self._check_button.pack()
+        self._cancel_button = tb.Button(self, text="CANCEL", command=self._cancel)
+        self._cancel_button.pack()
+
+    def _cancel(self):
+        ViewManager.get_instance().get_view("MainMenuFrame").load_me()
+
+    def _check(self):
+        test_id = self._dropdown_indexes[self.dropdown.current()]
+        ViewManager.get_instance().get_view("TestResultFrame").load_me(test_id)
         pass
+
+    def load_me(self, *xargs):
+        set_id: int = set_man.get_settings("person_data", "id")
+        taken_test = db.get_tests_by_person_id(set_id)
+        self._dropdown_indexes = []
+        self._dropdown_values = []
+        for t_id, _, _, num_questions, start_time, _, test_type_name, _ in taken_test:
+            self._dropdown_indexes.append(t_id)
+            self._dropdown_values.append(f"{test_type_name} ({num_questions}Q) | {start_time}")
+        dropdown_width = max(max(len(item) for item in self._dropdown_values) + 2, 35)
+        self.dropdown.config(width=dropdown_width)
+        self.dropdown['values'] = self._dropdown_values
+        self.dropdown.current(0)
+        self.tkraise()
 
 
 # TODO: class TestResultFrame
@@ -183,9 +309,21 @@ class TestResultFrame(ExFrame):
     """
     def __init__(self, master):
         super().__init__(master)
+        self._test_infos_label = tb.Label(self, text="Test Infos")
+        self._test_infos_label.pack()
+        self._cancel_button = tb.Button(self, text="CANCEL", command=self._cancel)
+        self._cancel_button.pack()
 
-    def load_me(self, *xargs):
-        pass
+    def _cancel(self):
+        ViewManager.get_instance().get_view("MainMenuFrame").load_me()
+
+    def load_me(self, test_id: int = None, *xargs):
+        if test_id is None:
+            raise ValueError("The TestResultFrame can only be loaded with a test id!")
+        else:
+            self._test_infos_label.config(text=f"TEST ID: {test_id}")
+            self.tkraise()
+
 
 
 # TODO: class QuestionMenuFrame
@@ -194,8 +332,14 @@ class QuestionMenuFrame(ExFrame):
     def __init__(self, master):
         super().__init__(master)
 
+        self._cancel_button = tb.Button(self, text="CANCEL", command=self._cancel)
+        self._cancel_button.pack()
+
+    def _cancel(self):
+        ViewManager.get_instance().get_view("MainMenuFrame").load_me()
+
     def load_me(self, *xargs):
-        pass
+        self.tkraise()
 
 
 # TODO: format the widgets / align them properly
@@ -278,6 +422,7 @@ class SettingsFrame(ExFrame):
 # TODO: format the widgets / align them properly
 #  choose between adding/checkin or deleting a person.
 #  Add a recheck before updating/deleteing/adding with quotes: "Anna Banana" trim spaces end/start
+#  maybe with radio buttons the 3 options choosing? Using another frame build up based on button set
 class PersonMenuFrame(ExFrame):
     def __init__(self, master):
         super().__init__(master)
@@ -290,7 +435,6 @@ class PersonMenuFrame(ExFrame):
             self.person_list.append(person)
             self.index_to_id_list.append(p_id)
 
-
         self.label = tb.Label(self, text="Wählen sie einen Login aus:")
         self.label.pack(pady=10, padx=30)
 
@@ -299,7 +443,10 @@ class PersonMenuFrame(ExFrame):
         self.dropdown.pack(pady=20, side='top', padx=10)
         self.dropdown.config(state="readonly")
         self.dropdown['values'] = self.person_list
-        self.dropdown.current(self.index_to_id_list.index(set_id))
+        if set_id == 0:
+            self.dropdown.current(0)
+        else:
+            self.dropdown.current(self.index_to_id_list.index(set_id))
 
         self._save_button = tb.Button(self, text="SAVE CHANGES", command=self._save_changes)
         self._save_button.pack()
@@ -370,7 +517,7 @@ def set_window_properties():
     root_window.geometry(f"{window_width}x{window_height}+{position_right}+{position_down}")
     root_window.minsize(640, 480)
     root_window.maxsize(width=screen_width, height=screen_height)
-    root_window.resizable(width=True, height=True)
+    root_window.resizable(width=False, height=False)
 
     # add grinds, only if needed
     root_window.grid_rowconfigure(0, weight=1)
@@ -399,6 +546,7 @@ def test():
     vm.add_view("QuestionMenuFrame", QuestionMenuFrame(base))
     vm.add_view("SettingsFrame", SettingsFrame(base))
     vm.add_view("PersonMenuFrame", PersonMenuFrame(base))
+    vm.add_view("TestResultFrame", TestResultFrame(base))
 
     list_views: dict = vm.get_view_list()
     for key, fr in list_views.items():
@@ -414,6 +562,7 @@ def test():
         vm.get_view("StartFrame").tkraise()
     else:
         vm.get_view("MainMenuFrame").tkraise()
+       #vm.get_view("TestQuestionFrame").tkraise()
 
     base.mainloop()
 

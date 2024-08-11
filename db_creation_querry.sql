@@ -418,3 +418,17 @@ FROM `persons`;
 END$$
 DELIMITER ;
 
+/* get_tests_by_person_id */
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `get_tests_by_person_id`(
+IN p_id int
+)
+BEGIN
+
+SELECT * FROM `taken_tests`
+LEFT JOIN `test_types` ON `taken_tests`.`test_type_id` = `test_types`.`id`
+WHERE `taken_tests`.`person_id` = p_id
+ORDER BY `taken_tests`.`start_timestamp` DESC;
+
+END$$
+DELIMITER ;

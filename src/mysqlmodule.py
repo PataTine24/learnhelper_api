@@ -117,6 +117,16 @@ def get_test_type_list() -> list[list[int, str, int | None, str]]:
     """
     return no_commit("get_test_types_with_main_type")
 
+def get_tests_by_person_id(person_id: int):
+    """
+    Returns a list of test taken tests:\n
+    [[25, 1, 2, 20, datetime.datetime(2024, 7, 12, 17, 12, 48), 2, 'Python Basics', 1],[...], ...]
+    [[test_id, person_id, test_type_id, number_of_questions, start_timestamp,
+    test_type_id, test_type_name, parent_test_type],[...],...]
+    :return: list
+    """
+    return no_commit("get_tests_by_person_id", person_id)
+
 
 def get_test_answer_and_question_ids_by_test_id(test_id: int) -> list[int]:
     """
@@ -284,5 +294,6 @@ def test():
     # so you need to format them properly.
 
 if __name__ == "__main__":
+
     test()
 
