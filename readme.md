@@ -18,7 +18,10 @@ You can change the interpreter by going to
 4. Using code snippets is all fine, but please mention me in smth. liek credits with a link t this project
 (can be in the readme of the github also)
       
+## Check this for what to do next:
+[TODO](https://github.com/search?q=repo%3Asora7672%2Flearnhelper_api%20%22%23%20TODO%3A%22&type=code)
 
+[FIXME](https://github.com/search?q=repo%3Asora7672%2Flearnhelper_api%20%22%23%20FIXME%3A%22&type=code)
 ## mysqlmodule
 This module used the mysql connector, so you need to install it in your IDE properly.
 In PyCharm go to packet manager and search for pip (if you want to install stuff via console)
