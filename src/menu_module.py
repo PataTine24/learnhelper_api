@@ -11,6 +11,7 @@ import random
 
 from abc import abstractmethod, ABC
 import mysqlmodule as db
+from mysqlmodule import NoQuestionError
 import ttkbootstrap as tb
 import ttkbootstrap.constants as tbc
 import tkinter as tk
@@ -135,7 +136,7 @@ class MainMenuFrame(ExFrame):
         self.tkraise()
 
 
-# TODO: StartTestFrame
+# TODO: StartTestFrame formatting
 class StartTestFrame(ExFrame):
     """
         choose test type (from all types and if there is a parent (question)type show child types)
@@ -145,19 +146,69 @@ class StartTestFrame(ExFrame):
     def __init__(self, master):
         super().__init__(master)
 
+        self._test_type_list = []
+        self._dropdown_test_types = tb.Combobox(self, values=[""], state="readonly")
+        self._dropdown_test_types.bind("<<ComboboxSelected>>", self._change_dropdown)
+        self._dropdown_test_types.current(0)
+        self._dropdown_test_types.pack()
+        self._extra_var = tb.StringVar()
+        self._extra_var.set("HELLO")
+
+        self._dropdown_extra = tb.Entry(self, textvariable=self._extra_var, state="readonly")
+        self._dropdown_extra.pack()
+
+        check_num = self.register(self._check_num)
+        self._number_field = tb.Entry(self, width=2, validate="key", validatecommand=(check_num, "%P"))
+        self._number_field.pack()
+
         self._start_button = tb.Button(self, text="Start Test", command=self._start_test)
         self._start_button.pack()
 
         self._cancel_button = tb.Button(self, text="CANCEL", command=self._cancel)
         self._cancel_button.pack()
 
+    def _check_num(self, in_value):
+        checked = True
+        checked = False if len(in_value) >= 3 else checked
+        checked = checked if str(in_value).isnumeric() else False
+        return checked
+
+    def _change_dropdown(self, *xargs):
+        self._extra_var.set(self._test_type_list[self._dropdown_test_types.current()][3])
+
     def _start_test(self):
-        new_test_id = 999
-        ViewManager.get_instance().get_view("TestResultFrame").load_me(new_test_id)
+        t_type_id = self._test_type_list[self._dropdown_test_types.current()][0]
+
+        try:
+            num_qs = int(self._number_field.get())
+            person_id = set_man.get_settings("person_data", "id")
+            person_id = int(str(person_id))
+        except ValueError as err:
+            print(err)
+        else:
+            self._new_test_id = db.add_taken_test(person_id, t_type_id, num_qs)
+            self._load_test_question(self._new_test_id)
+
+    def _load_test_question(self, test_id: int):
+        try:
+            question_id = db.add_new_random_question_to_test(test_id)
+        except NoQuestionError as err:
+            #alert there are no questions in that type
+
+            ViewManager.get_instance().get_view("MainMenuFrame").load_me()
+            pass
+        else:
+            ViewManager.get_instance().get_view("TestQuestionFrame").load_me(question_id)
+
     def _cancel(self):
         ViewManager.get_instance().get_view("MainMenuFrame").load_me()
 
     def load_me(self, *xargs):
+        self._number_field.delete(0, "end")
+        self._test_type_list = db.get_test_type_list()
+        self._dropdown_test_types.configure(values=[entry[1] for entry in self._test_type_list])
+        self._dropdown_test_types.current(0)
+        self._extra_var.set(self._test_type_list[self._dropdown_test_types.current()][3])
         self.tkraise()
 
 
@@ -169,7 +220,7 @@ class TestQuestionFrame(ExFrame):
     the answer and go on to next."""
     def __init__(self, master):
         super().__init__(master)
-        # TODO: remove this temp stuff:
+        # TODO: all WIP
         self._question_infos_label = tb.Label(self, text="Test Infos")
         self._question_infos_label.grid(row=0, column=0, sticky=tbc.NSEW)
 
@@ -253,6 +304,7 @@ class TestQuestionFrame(ExFrame):
             raise ValueError("TestQuestionFrame allways needs a question id")
         else:
             self._question_infos_label.config(text=f"question id: {question_id}")
+            self.tkraise()
 
 
 # TODO: class CheckTestFrame
@@ -421,7 +473,7 @@ class SettingsFrame(ExFrame):
 
 # TODO: format the widgets / align them properly
 #  choose between adding/checkin or deleting a person.
-#  Add a recheck before updating/deleteing/adding with quotes: "Anna Banana" trim spaces end/start
+#  Add a recheck before updating/deleting/adding with quotes: "Anna Banana" trim spaces end/start
 #  maybe with radio buttons the 3 options choosing? Using another frame build up based on button set
 class PersonMenuFrame(ExFrame):
     def __init__(self, master):
@@ -561,7 +613,7 @@ def test():
         # need to open the init screen for setting user
         vm.get_view("StartFrame").tkraise()
     else:
-        vm.get_view("MainMenuFrame").tkraise()
+       vm.get_view("MainMenuFrame").tkraise()
        #vm.get_view("TestQuestionFrame").tkraise()
 
     base.mainloop()

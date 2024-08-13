@@ -14,7 +14,19 @@ Every project maybe needs to have the librarys installed each time, because each
 """
 
 import mysql.connector
+from os import path
+import traceback
 
+
+class NoQuestionError(Exception):
+    def __init__(self, message: str = None, error_code=None):
+        if message is None:
+            message = f"There is no more Questions for that test type with that test_id."
+        else:
+            self.message = message
+        super().__init__(message)
+        self.error_code = error_code
+        self.traceback = ''.join(traceback.format_stack())
 
 learnhelper = mysql.connector.connect(
     host="localhost",
@@ -243,12 +255,14 @@ def add_new_random_question_to_test(test_id: int) -> int:
     Returns new question id or 0 if testype not found(test_id wrong) or if NO new question available.\n
     WARNING! Under specific conditions this could duplicate questions asked.\n
     This conditions are unknown and need further testing!\n
-    Or no new question is added.
-
+    Or no new question is added.\n
+    Raises a "NoQuestionError" if there is no question left, so you need to catch that.
     :param test_id: int
     :return: int
     """
     result = with_commit("add_new_random_question_to_test", test_id)
+    if result[0][0] == 0:
+        raise NoQuestionError
     return result[0][0]
 
 
