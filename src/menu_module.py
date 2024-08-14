@@ -49,6 +49,16 @@ class ViewManager:
     def get_view_list(self):
         return self._views
 
+def change_entry(element_entry, text: str) -> None:
+    element_entry.config(state="normal")
+    element_entry.delete(0, tbc.END)
+    element_entry.insert(0, text)
+    element_entry.config(state="readonly")
+
+def change_text(element_text, text: str) -> None:
+    element_text.config(state="normal")
+    element_text.insert("1.0", text)
+    element_text.config(state="disabled")
 
 # # # # creation fo classes for each "View" (Frame) to show # # # #
 
@@ -214,84 +224,95 @@ class StartTestFrame(ExFrame):
 
 
 # TODO:  class TestQuestionFrame
+#  Add usability friendliness, click in frame of answer = click on radio button or checkbox (no small click areas)
 class TestQuestionFrame(ExFrame):
     """    Shows one question with answers
     and makes it possible to choose
     the answer and go on to next."""
     def __init__(self, master):
         super().__init__(master)
-        # TODO: all WIP
-        self._question_infos_label = tb.Label(self, text="Test Infos")
-        self._question_infos_label.grid(row=0, column=0, sticky=tbc.NSEW)
 
-        # end
-        self._is_singlechoice = True
-        self._question_text = ["popp", "bjkdjkawkdwada", "dhdusuidsuauhdn uidhauiui :duah w WDn  !!:;Jkd", "hdjdjd122"]
-        self._answer_text_a = ["bananas", "sting", "lastline"]
-        self._answer_text_b = ["!hdhdh", "stong"]
-        self._answer_text_c = ["hepp", "-", "space"]
-        self._answer_text_d = ["boop", "doop", ]
-        self._answer_value_a = 123
-        self._answer_value_b = 121
-        self._answer_value_c = 124
-        self._answer_value_d = 122
+        q_id = 5
+        tmp_q = db.get_question_by_id(q_id)
+        self._question_value = tmp_q[2]
+        self._is_singlechoice = bool(tmp_q[3])
 
-        # Configure rows and columns in the main frame
-        self.grid_rowconfigure(0, weight=1)  # Upper div
-        self.grid_rowconfigure(1, weight=1)  # Middle div
-        self.grid_rowconfigure(2, weight=0)  # Bottom div
-        self.grid_columnconfigure(0, weight=1)  # Full width
+        tmp_answer = db.get_answers_by_question_id(q_id)
+        self._answer_text_value_list = []
+        self._answer_value_list = []
+        for a_id, _, a_value,_ in tmp_answer:
+            self._answer_text_value_list.append(a_value)
+            self._answer_value_list.append(a_id)
 
-        # Upper div - 50% of the screen height
-        upper_frame = tb.Frame(self, padding="10")
-        upper_frame.grid(row=0, column=0, sticky=tbc.NSEW)
+        # value attributes
 
-        # Large read-only text area in the upper div
-        self.question_area = tb.Text(upper_frame, wrap=tbc.WORD, height=10, state='disabled')
-        self.question_area.pack(fill=tbc.BOTH, expand=True)
+        self._radio_var = tb.IntVar()
+        # all widgets init, no packing!
+
+        self._upper_frame = tb.Frame(self, padding="5")
+        self._upper_frame.grid(row=0, column=0, sticky="nsew")
+        self._middle_frame = tb.Frame(self, padding="5")
+        self._middle_frame.grid(row=1, column=0, sticky="nsew")
+        self._bottom_frame = tb.Frame(self, padding="5")
+        self._bottom_frame.grid(row=2, column=0, sticky="nsew")
+
+        self._question_infos_label = tb.Label(self._upper_frame, text="Test Infos")
+        self._question_text_widget = tb.Text(self._upper_frame, state="disabled", width=128, height=20)
+        # TODO: Make this into a loop to minimize the code
+        self._answer_frame_a = tb.Frame(self._middle_frame, padding="2")
+        self._answer_frame_b = tb.Frame(self._middle_frame, padding="2")
+        self._answer_frame_c = tb.Frame(self._middle_frame, padding="2")
+        self._answer_frame_d = tb.Frame(self._middle_frame, padding="2")
+        self._radio_a = tb.Radiobutton(self._answer_frame_a, variable=self._radio_var, value=self._answer_value_list[0])
+        self._radio_b = tb.Radiobutton(self._answer_frame_b, variable=self._radio_var, value=self._answer_value_list[1])
+        self._radio_c = tb.Radiobutton(self._answer_frame_c, variable=self._radio_var, value=self._answer_value_list[2])
+        self._radio_d = tb.Radiobutton(self._answer_frame_d, variable=self._radio_var, value=self._answer_value_list[3])
+        self._text_widget_a = tb.Text(self._answer_frame_a, state="disabled", width=80, height=2)
+        self._text_widget_b = tb.Text(self._answer_frame_b, state="disabled", width=80, height=2)
+        self._text_widget_c = tb.Text(self._answer_frame_c, state="disabled", width=80, height=2)
+        self._text_widget_d = tb.Text(self._answer_frame_d, state="disabled", width=80, height=2)
+
+        self._cancel_test_button = tb.Button(self._bottom_frame, text="Cancel Test")
+        self._next_button = tb.Button(self._bottom_frame, text="Next Question")
+
+        # packing /layouting
+        self._question_infos_label.pack()
+        self._question_text_widget.pack()
+        # TODO: Make this into a loop to minimize the code
+        self._answer_frame_a.grid(row=0)
+        self._answer_frame_b.grid(row=1)
+        self._answer_frame_c.grid(row=2)
+        self._answer_frame_d.grid(row=3)
+        self._radio_a.grid(row=0, column=0)
+        self._radio_b.grid(row=1, column=0)
+        self._radio_c.grid(row=2, column=0)
+        self._radio_d.grid(row=3, column=0)
+        self._text_widget_a.grid(row=0, column=1)
+        self._text_widget_b.grid(row=1, column=1)
+        self._text_widget_c.grid(row=2, column=1)
+        self._text_widget_d.grid(row=3, column=1)
+
+        self._cancel_test_button.pack(side="left")
+        self._next_button.pack(side="right")
+
+        # # # # set values AFTER packing only! # # # #
+
+
+        change_text(self._question_text_widget,self._question_value)
+        # TODO: Make this into a loop to minimize the code
+        text_a = "".join(self._answer_text_value_list[0])
+        text_b = "".join(self._answer_text_value_list[1])
+        text_c = "".join(self._answer_text_value_list[2])
+        text_d = "".join(self._answer_text_value_list[3])
+        change_text(self._text_widget_a, text_a)
+        change_text(self._text_widget_b, text_b)
+        change_text(self._text_widget_c, text_c)
+        change_text(self._text_widget_d, text_d)
 
 
 
-        # Middle div - 30% of the screen height
-        middle_frame = tb.Frame(self, padding="10")
-        middle_frame.grid(row=1, column=0, sticky=tbc.NSEW)
 
-        # Configure rows in the middle frame
-        for i in range(4):
-            middle_frame.grid_rowconfigure(i, weight=1)
 
-        # Create four boxes with radio buttons and text areas
-        self.radio_var = tk.StringVar()  # Variable to hold the selected radio button
-        win_width = set_man.get_settings("visual_data", "resolution")[0]
-        answer_width = win_width//7
-
-        for i in range(4):
-            row_frame = tb.Frame(middle_frame, padding="5")
-            row_frame.grid(row=i, column=0, sticky=tbc.NSEW)
-
-            if self._is_singlechoice:
-                # Radio button
-                radio_button = tb.Radiobutton(row_frame, variable=self.radio_var,
-                                               value=None)
-                # TODO: Set value for answers
-                radio_button.pack(side=tbc.LEFT, padx=(0, 10))
-            else:
-                checkbox = tb.Checkbutton(row_frame)
-                checkbox.pack(side=tbc.LEFT, padx=(0, 10))
-            # Read-only text area
-            text_area = tb.Text(row_frame, height=2, width=answer_width, state='disabled', wrap=tbc.WORD)
-            text_area.pack(side=tbc.LEFT, fill=tbc.BOTH, expand=True)
-
-        # Bottom div - 20% of the screen height
-        bottom_frame = tb.Frame(self, padding="10")
-        bottom_frame.grid(row=2, column=0, sticky=tbc.EW)
-
-        # Add buttons to the bottom frame
-        left_button = tb.Button(bottom_frame, text="Left Button")
-        left_button.pack(side=tbc.LEFT, padx=(0, 10))
-
-        right_button = tb.Button(bottom_frame, text="Right Button")
-        right_button.pack(side=tbc.RIGHT)
 
     def _add_radio_buttons(self):
         pass
@@ -613,8 +634,8 @@ def test():
         # need to open the init screen for setting user
         vm.get_view("StartFrame").tkraise()
     else:
-       vm.get_view("MainMenuFrame").tkraise()
-       #vm.get_view("TestQuestionFrame").tkraise()
+       #vm.get_view("MainMenuFrame").tkraise()
+       vm.get_view("TestQuestionFrame").tkraise()
 
     base.mainloop()
 
