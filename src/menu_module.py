@@ -258,19 +258,10 @@ class TestQuestionFrame(ExFrame):
 
         self._question_infos_label = tb.Label(self._upper_frame, text="Test Infos")
         self._question_text_widget = tb.Text(self._upper_frame, state="disabled", width=128, height=20)
-        # TODO: Make this into a loop to minimize the code
-        self._answer_frame_a = tb.Frame(self._middle_frame, padding="2")
-        self._answer_frame_b = tb.Frame(self._middle_frame, padding="2")
-        self._answer_frame_c = tb.Frame(self._middle_frame, padding="2")
-        self._answer_frame_d = tb.Frame(self._middle_frame, padding="2")
-        self._radio_a = tb.Radiobutton(self._answer_frame_a, variable=self._radio_var, value=self._answer_value_list[0])
-        self._radio_b = tb.Radiobutton(self._answer_frame_b, variable=self._radio_var, value=self._answer_value_list[1])
-        self._radio_c = tb.Radiobutton(self._answer_frame_c, variable=self._radio_var, value=self._answer_value_list[2])
-        self._radio_d = tb.Radiobutton(self._answer_frame_d, variable=self._radio_var, value=self._answer_value_list[3])
-        self._text_widget_a = tb.Text(self._answer_frame_a, state="disabled", width=80, height=2)
-        self._text_widget_b = tb.Text(self._answer_frame_b, state="disabled", width=80, height=2)
-        self._text_widget_c = tb.Text(self._answer_frame_c, state="disabled", width=80, height=2)
-        self._text_widget_d = tb.Text(self._answer_frame_d, state="disabled", width=80, height=2)
+
+       # # # #  radio button method # # # #
+        self._add_radio_buttons()
+
 
         self._cancel_test_button = tb.Button(self._bottom_frame, text="Cancel Test")
         self._next_button = tb.Button(self._bottom_frame, text="Next Question")
@@ -278,19 +269,8 @@ class TestQuestionFrame(ExFrame):
         # packing /layouting
         self._question_infos_label.pack()
         self._question_text_widget.pack()
-        # TODO: Make this into a loop to minimize the code
-        self._answer_frame_a.grid(row=0)
-        self._answer_frame_b.grid(row=1)
-        self._answer_frame_c.grid(row=2)
-        self._answer_frame_d.grid(row=3)
-        self._radio_a.grid(row=0, column=0)
-        self._radio_b.grid(row=1, column=0)
-        self._radio_c.grid(row=2, column=0)
-        self._radio_d.grid(row=3, column=0)
-        self._text_widget_a.grid(row=0, column=1)
-        self._text_widget_b.grid(row=1, column=1)
-        self._text_widget_c.grid(row=2, column=1)
-        self._text_widget_d.grid(row=3, column=1)
+
+
 
         self._cancel_test_button.pack(side="left")
         self._next_button.pack(side="right")
@@ -299,15 +279,8 @@ class TestQuestionFrame(ExFrame):
 
 
         change_text(self._question_text_widget,self._question_value)
-        # TODO: Make this into a loop to minimize the code
-        text_a = "".join(self._answer_text_value_list[0])
-        text_b = "".join(self._answer_text_value_list[1])
-        text_c = "".join(self._answer_text_value_list[2])
-        text_d = "".join(self._answer_text_value_list[3])
-        change_text(self._text_widget_a, text_a)
-        change_text(self._text_widget_b, text_b)
-        change_text(self._text_widget_c, text_c)
-        change_text(self._text_widget_d, text_d)
+
+
 
 
 
@@ -315,7 +288,22 @@ class TestQuestionFrame(ExFrame):
 
 
     def _add_radio_buttons(self):
-        pass
+        self._answer_frames = []
+        self._answer_boxes = []
+        self._answer_text_widgets = []
+        for index in range(4): # index -> 0,1,2,3
+            self._answer_frames.append(tb.Frame(self._middle_frame, padding="2"))
+            self._answer_boxes.append(
+                tb.Radiobutton(self._answer_frames[index], variable=self._radio_var,
+                               value=self._answer_value_list[index]))
+            self._answer_text_widgets.append(tb.Text(self._answer_frames[index], state="disabled", width=80, height=2))
+            self._answer_frames[index].grid(row=index)
+            self._answer_boxes[index].grid(row=index, column=0)
+            self._answer_text_widgets[index].grid(row=index, column=1)
+            text_tmp = "".join(self._answer_text_value_list[index])
+            change_text(self._answer_text_widgets[index], text_tmp)
+
+
 
     def _add_checkboxes(self):
         pass
