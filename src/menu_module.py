@@ -162,11 +162,12 @@ class StartTestFrame(ExFrame):
         self._dropdown_test_types.current(0)
         self._dropdown_test_types.pack()
         self._extra_var = tb.StringVar()
-        self._extra_var.set("HELLO")
+        self._extra_var.set("")
 
         self._dropdown_extra = tb.Entry(self, textvariable=self._extra_var, state="readonly")
         self._dropdown_extra.pack()
 
+        # FIXME: if you wrote one number you cant delete teh one number anymore
         check_num = self.register(self._check_num)
         self._number_field = tb.Entry(self, width=2, validate="key", validatecommand=(check_num, "%P"))
         self._number_field.pack()
@@ -190,25 +191,25 @@ class StartTestFrame(ExFrame):
         t_type_id = self._test_type_list[self._dropdown_test_types.current()][0]
 
         try:
-            num_qs = int(self._number_field.get())
+            num_questions = int(self._number_field.get())
             person_id = set_man.get_settings("person_data", "id")
             person_id = int(str(person_id))
         except ValueError as err:
             print(err)
         else:
-            self._new_test_id = db.add_taken_test(person_id, t_type_id, num_qs)
-            self._load_test_question(self._new_test_id)
+            self._new_test_id = db.add_taken_test(person_id, t_type_id, num_questions)
+            self._load_test_question(num_questions)
 
-    def _load_test_question(self, test_id: int):
+    def _load_test_question(self, num_questions):
         try:
-            question_id = db.add_new_random_question_to_test(test_id)
+            question_id = db.add_new_random_question_to_test(self._new_test_id)
         except NoQuestionError as err:
-            #alert there are no questions in that type
+            # TODO: alert there are no questions in that type
 
             ViewManager.get_instance().get_view("MainMenuFrame").load_me()
-            pass
+
         else:
-            ViewManager.get_instance().get_view("TestQuestionFrame").load_me(question_id)
+            ViewManager.get_instance().get_view("TestQuestionFrame").load_me(question_id, self._new_test_id, num_questions)
 
     def _cancel(self):
         ViewManager.get_instance().get_view("MainMenuFrame").load_me()
@@ -231,22 +232,23 @@ class TestQuestionFrame(ExFrame):
     the answer and go on to next."""
     def __init__(self, master):
         super().__init__(master)
+        #test values, otherwise None
+        self._question_id = 5
+        self._test_id = 30 # TODO: needs to be set to 0 at start
 
-        q_id = 5
-        tmp_q = db.get_question_by_id(q_id)
+        tmp_q = db.get_question_by_id(self._question_id)
         self._question_value = tmp_q[2]
-        self._is_singlechoice = bool(tmp_q[3])
+        self._number_of_questions = 0
+        self._finished_questions = 0
+        self._is_single_choice = bool(tmp_q[3])
 
-        tmp_answer = db.get_answers_by_question_id(q_id)
+        tmp_answer = db.get_answers_by_question_id(self._question_id)
         self._answer_text_value_list = []
         self._answer_value_list = []
         for a_id, _, a_value,_ in tmp_answer:
             self._answer_text_value_list.append(a_value)
             self._answer_value_list.append(a_id)
 
-        # value attributes
-
-        self._radio_var = tb.IntVar()
         # all widgets init, no packing!
 
         self._upper_frame = tb.Frame(self, padding="5")
@@ -257,62 +259,92 @@ class TestQuestionFrame(ExFrame):
         self._bottom_frame.grid(row=2, column=0, sticky="nsew")
 
         self._question_infos_label = tb.Label(self._upper_frame, text="Test Infos")
-        self._question_text_widget = tb.Text(self._upper_frame, state="disabled", width=128, height=20)
+        self._question_text_widget = tb.Text(self._upper_frame, state="disabled", width=100, height=13)
 
-       # # # #  radio button method # # # #
-        self._add_radio_buttons()
+       # # # #  add each element for answers # # # #
+        self._add_answer_elements()
 
-
-        self._cancel_test_button = tb.Button(self._bottom_frame, text="Cancel Test")
-        self._next_button = tb.Button(self._bottom_frame, text="Next Question")
+        self._cancel_test_button = tb.Button(self._bottom_frame, text="Cancel Test", command=self._cancel)
+        self._next_button = tb.Button(self._bottom_frame, text="Next Question", command=self._submit_answers)
 
         # packing /layouting
         self._question_infos_label.pack()
         self._question_text_widget.pack()
-
-
-
         self._cancel_test_button.pack(side="left")
         self._next_button.pack(side="right")
 
         # # # # set values AFTER packing only! # # # #
+        change_text(self._question_text_widget, self._question_value)
 
 
-        change_text(self._question_text_widget,self._question_value)
-
-
-
-
-
-
-
-
-    def _add_radio_buttons(self):
+    def _add_answer_elements(self):
         self._answer_frames = []
         self._answer_boxes = []
         self._answer_text_widgets = []
-        for index in range(4): # index -> 0,1,2,3
+
+        if self._is_single_choice:
+            self._radio_var = tb.IntVar()
+        else:
+            self._checkbox_values = [tb.BooleanVar(), tb.BooleanVar(), tb.BooleanVar(), tb.BooleanVar()]
+
+        for index in range(4):
             self._answer_frames.append(tb.Frame(self._middle_frame, padding="2"))
-            self._answer_boxes.append(
-                tb.Radiobutton(self._answer_frames[index], variable=self._radio_var,
-                               value=self._answer_value_list[index]))
-            self._answer_text_widgets.append(tb.Text(self._answer_frames[index], state="disabled", width=80, height=2))
+            if self._is_single_choice:
+                self._answer_boxes.append(
+                    tb.Radiobutton(self._answer_frames[index], variable=self._radio_var,
+                                   value=self._answer_value_list[index]))
+            else:
+                self._answer_boxes.append(tb.Checkbutton(
+                    self._answer_frames[index], variable=self._checkbox_values[index]))
+            self._answer_text_widgets.append(tb.Text(self._answer_frames[index], state="disabled", width=96, height=2))
             self._answer_frames[index].grid(row=index)
             self._answer_boxes[index].grid(row=index, column=0)
             self._answer_text_widgets[index].grid(row=index, column=1)
             text_tmp = "".join(self._answer_text_value_list[index])
             change_text(self._answer_text_widgets[index], text_tmp)
 
+    def _cancel(self):
+        self._finished_questions = 0
+        ViewManager.get_instance().get_view("MainMenuFrame").load_me()
 
+    def _submit_answers(self):
+        if self._is_single_choice:  # radio buttons
+            db.add_test_answer(self._test_id, self._question_id, self._radio_var.get())
 
-    def _add_checkboxes(self):
-        pass
+        else: #checkboxes
+            for index, boxes in enumerate(self._checkbox_values):
+                if boxes.get():
+                    print(self._test_id, self._question_id, self._answer_value_list[index])
+                    print(type(self._test_id), type(self._question_id), type(self._answer_value_list[index]))
+                    db.add_test_answer(self._test_id, self._question_id, self._answer_value_list[index])
 
-    def load_me(self, question_id: int = None, *xargs):
-        if question_id is None:
-            raise ValueError("TestQuestionFrame allways needs a question id")
+        # check if any more questions are available
+        try:
+            n_question_id = db.add_new_random_question_to_test(self._test_id)
+        except NoQuestionError as err:
+            self._finished_questions = 0
+            ViewManager.get_instance().get_view("MainMenuFrame").load_me()
+
         else:
-            self._question_infos_label.config(text=f"question id: {question_id}")
+            self._finished_questions += 1
+            self.load_me(question_id=n_question_id, test_id=self._test_id)
+
+    def load_me(self, question_id: int = None, test_id: int = None, num_questions: int = None, *xargs):
+        if question_id is None:
+            raise ValueError("TestQuestionFrame allways needs a question_id")
+        elif test_id is None:
+            raise ValueError("TestQuestionFrame allways needs a test_id")
+        elif num_questions is None:
+            raise ValueError("TestQuestionFrame allways needs a num_questions var")
+        else:
+            self._question_id = question_id
+
+            if not self._test_id == test_id:  # if new test
+                self._number_of_questions = num_questions
+            self._test_id = test_id
+
+
+            # TODO: change all values in the view
             self.tkraise()
 
 
@@ -626,7 +658,7 @@ def test():
        vm.get_view("TestQuestionFrame").tkraise()
 
     base.mainloop()
-
+    db.end()
 
 
 if __name__ == "__main__":

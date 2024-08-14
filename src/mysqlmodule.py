@@ -81,16 +81,17 @@ def with_commit(proc_name, *xproc_args) -> None | list[list]:
 
     mycursor.callproc(proc_name, args=(xproc_args))
     learnhelper.commit()
-
     result: list = []
+    # TODO:  Handle this better with if and checks instead of try! Or catch the right exception only
     try:
         for s in mycursor.stored_results():
+            print(s)
             rows = s.fetchall()
 
         for row in rows:
             result.append(list(row))
     except Exception:
-        print(Exception)
+        # catches all exceptions, not wanted, imagine timeout exception happens....
         result = None
 
     mycursor.close()
