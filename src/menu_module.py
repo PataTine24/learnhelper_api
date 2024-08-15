@@ -228,6 +228,10 @@ class StartTestFrame(ExFrame):
 
 # TODO:  class TestQuestionFrame
 #  Add usability friendliness, click in frame of answer = click on radio button or checkbox (no small click areas)
+#  Add a cool load bar instead of 5/10 questions info
+#  Using enter for getting to next question
+#  validation submit if single = 1 choice, multiple = 2+ choice
+#  Use tab to run through radio buttons/checkboxes, cancel and submit key
 class TestQuestionFrame(ExFrame):
     """    Shows one question with answers
     and makes it possible to choose
@@ -298,6 +302,8 @@ class TestQuestionFrame(ExFrame):
             change_text(self._answer_text_widgets[index], text_tmp)
 
     def _cancel(self):
+        # TODO: okcancel box to check if really want to stop test
+
         self._finished_questions = 1
         ViewManager.get_instance().get_view("MainMenuFrame").load_me()
 
@@ -308,19 +314,25 @@ class TestQuestionFrame(ExFrame):
             for index, boxes in enumerate(self._checkbox_values):
                 if boxes.get():
                     db.add_test_answer(self._test_id, self._question_id, self._answer_value_list[index])
+        db.add_end_time_by_test_id_and_question_id(self._test_id, self._question_id)
 
-        # TODO: If max numbers of questions, dont try to grab new question!
-        # check if any more questions are available
-        try:
-            n_question_id = db.add_new_random_question_to_test(self._test_id)
-        except NoQuestionError as err:
+        if self._finished_questions >= self._number_of_questions:
             self._finished_questions = 1
-            ViewManager.get_instance().get_view("MainMenuFrame").load_me()
-
+            ViewManager.get_instance().get_view("TestResultFrame").load_me(self._test_id)
+        # check if any more questions are available
         else:
-            self._finished_questions += 1
-            self.load_me(question_id=n_question_id, test_id=self._test_id)
+            try:
+                n_question_id = db.add_new_random_question_to_test(self._test_id)
+            except NoQuestionError as err:
+                MBox.show_warning(message=f"Sorry! We ran out of questions for this test!", title="NoQuestionError")
+                self._finished_questions = 1
+                ViewManager.get_instance().get_view("MainMenuFrame").load_me()
 
+            else:
+                self._finished_questions += 1
+                self.load_me(question_id=n_question_id, test_id=self._test_id)
+
+    # TODO: String formatting with code and lines
     def load_me(self, question_id: int = None, test_id: int = None, num_questions: int = None, *xargs):
         if question_id is None:
             raise ValueError("TestQuestionFrame allways needs a question_id")
@@ -424,6 +436,7 @@ class TestQuestionFrame(ExFrame):
 
 
 # TODO: class CheckTestFrame
+#  Needs 2 more fields. On for Number of questions and one for time started test (should be formatted properly)
 class CheckTestFrame(ExFrame):
     """Choose a test to look into
     Only the persons own,
@@ -453,6 +466,7 @@ class CheckTestFrame(ExFrame):
         pass
 
     def load_me(self, *xargs):
+        # FIXME: Errors with settings_managers returns
         set_id: int = set_man.get_settings("person_data", "id")
         taken_test = db.get_tests_by_person_id(set_id)
         self._dropdown_indexes = []
@@ -468,6 +482,7 @@ class CheckTestFrame(ExFrame):
 
 
 # TODO: class TestResultFrame
+#  Needs to load all questions and answers in, also given answers sorted by question id
 class TestResultFrame(ExFrame):
     """
     Shows all questions & answers from one test
@@ -482,6 +497,16 @@ class TestResultFrame(ExFrame):
         self._cancel_button = tb.Button(self, text="CANCEL", command=self._cancel)
         self._cancel_button.pack()
 
+    def _append_single_question_frame(self, parent_frame):
+        pass
+
+    def _add_all_question_frames(self, parent_frame):
+        # TODO: Add scrollable master frame
+        #  add below foreach question one new frame
+        #  Including all question formatted and answers
+        #  And choosen answers by user
+        #  Extra includes start and end time (and time used) for question
+        pass
     def _cancel(self):
         ViewManager.get_instance().get_view("MainMenuFrame").load_me()
 
@@ -489,6 +514,9 @@ class TestResultFrame(ExFrame):
         if test_id is None:
             raise ValueError("The TestResultFrame can only be loaded with a test id!")
         else:
+            # also add the time started into the window
+            # TODO: add a round thingy from TB where you can show the % correct from this test
+            #  Later maybe some growth analysis per topic on a personal info page
             self._test_infos_label.config(text=f"TEST ID: {test_id}")
             self.tkraise()
 
@@ -644,8 +672,7 @@ class PersonMenuFrame(ExFrame):
         self.tkraise()
 
 
-
-# # # #  Function for changing what is happening on window close # # # #
+# TODO: refactor this code to the proper area in the project
 def on_closing():
     base = ViewManager.get_instance().get_view("base")
     if MBox.okcancel(message=f"Do you want to close learnhelper?", title="Closing Approval") == "OK":
@@ -653,24 +680,17 @@ def on_closing():
         base.destroy()  # Schließt das Fenster
 
 
-# TODO: change to the proper area in code
-
-
-
 def set_window_properties():
     """
-    Here we configure how the window will be looking
+    Here we configure how the window will look
     We also check for settings here and implement these here
     """
-    #set_man.set_settings_key("visual_data", "color_scheme", "cyborg")
+
 
     theme = str(set_man.get_settings("visual_data", "theme"))
     # FIXME: Seems like this has a problem with different themes?
     #  Maybe they are changing different things we dont see in our project so far
     root_window = tb.Window(themename=theme)
-
-    #set_man.set_settings_key("visual_data", "size", (800, 600))
-    # size now returns a tuple (x,y) which is getting unpacked here
     window_width, window_height = set_man.get_settings("visual_data", "resolution")
 
     root_window.protocol("WM_DELETE_WINDOW", on_closing)

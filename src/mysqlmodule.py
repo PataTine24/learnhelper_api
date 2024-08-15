@@ -172,6 +172,7 @@ def get_question_by_id(question_id: int) -> list[int, int, str, int, object]:
 
 
 def get_question_ids_by_test_id(test_id: int) -> list[int]:
+    # TODO: docstring
     result = []
     tmp = no_commit("get_question_ids_by_test_id", test_id)
     for x in tmp:
@@ -179,6 +180,7 @@ def get_question_ids_by_test_id(test_id: int) -> list[int]:
     return result
 
 def get_person_list():
+    # TODO: docstring
     return no_commit("get_person_list")
 
 # ADD to DB
@@ -262,9 +264,6 @@ def add_new_random_question_to_test(test_id: int) -> int:
     return result[0][0]
 
 
-
-
-
 def add_test_type(test_type_content: str, main_type_id: int | None) -> None:
     """
     Adds a new test type to the database.\n
@@ -276,6 +275,10 @@ def add_test_type(test_type_content: str, main_type_id: int | None) -> None:
     with_commit("add_test_type", test_type_content, main_type_id)
 
 
+def add_end_time_by_test_id_and_question_id(test_id: int, question_id: int) -> None:
+    with_commit("add_end_time_by_test_id_and_question_id", test_id, question_id)
+
+
 # DELETE from DB
 def delete_person_data(person_id: int) -> None:
     """
@@ -285,7 +288,8 @@ def delete_person_data(person_id: int) -> None:
     :return: None
     """
     with_commit("delete_person_data", person_id)
-    
+
+
 def delete_taken_test(test_id: int) -> None:
     """
     Deletes taken test from the database.\n
