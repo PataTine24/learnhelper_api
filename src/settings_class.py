@@ -97,33 +97,10 @@ class SettingsManager:
             self.__settings[mainkey][subkey] = value
             self.export_settings()
         else:
-            print("Error! Invalid keys provided.")
-
-
-# # # # # Code to test # # # # #
-# TODO: On release remove test block
-def test():
-    print("Testing:")
-
-    # Example usage
-    settings = SettingsManager()
-
-    if settings.get_settings("person_data", "id") == 0:
-        print("No Id given so we dont import")
-    else:
-        settings.import_settings()
-
-    # raises an error if invalid keys are searched for (based on the init of the class)
-    # print(settings.get_settings('person_data', "database"))
-
-    settings.set_settings_key('person_data', 'name', 'Peter Maffay')
-    print(settings.get_settings('db_data'))
-
+            raise InvalidSettingsKey(searched_key=f"{mainkey}:{subkey}")
 
 if __name__ == "__main__":
     print("This module is not working alone")
-    # if you want to test this uncomment the below and comment out the above.
-    # test()
 
 
 

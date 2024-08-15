@@ -200,7 +200,7 @@ class StartTestFrame(ExFrame):
             person_id = set_man.get_settings("person_data", "id")
             person_id = int(str(person_id))
         except ValueError as err:
-            print(err)
+            print(f"_start_test in StartTestFrame: \n{err}")
         else:
             self._new_test_id = db.add_taken_test(person_id, t_type_id, num_questions)
             self._load_test_question(num_questions)
@@ -306,17 +306,14 @@ class TestQuestionFrame(ExFrame):
         self._finished_questions = 1
         ViewManager.get_instance().get_view("MainMenuFrame").load_me()
 
-
     def _submit_answers(self):
         if self._is_single_choice:  # radio buttons
             db.add_test_answer(self._test_id, self._question_id, self._radio_var.get())
-
         else: #checkboxes
             for index, boxes in enumerate(self._checkbox_values):
                 if boxes.get():
-                    print(self._test_id, self._question_id, self._answer_value_list[index])
-                    print(type(self._test_id), type(self._question_id), type(self._answer_value_list[index]))
                     db.add_test_answer(self._test_id, self._question_id, self._answer_value_list[index])
+
         # TODO: If max numbers of questions, dont try to grab new question!
         # check if any more questions are available
         try:
@@ -343,6 +340,9 @@ class TestQuestionFrame(ExFrame):
                 else:
                     self._number_of_questions = num_questions
 
+            for box in self._answer_boxes:
+                box.destroy()
+
             self._test_id = test_id
 
             q_entry = db.get_question_by_id(question_id)
@@ -363,7 +363,7 @@ class TestQuestionFrame(ExFrame):
                 self._answer_text_value_list.append(a_value)
                 self._answer_value_list.append(a_id)
 
-
+            self._answer_boxes = []
             for index, answer in enumerate(tmp_answer):
                 change_text(self._answer_text_widgets[index], answer[2])
 

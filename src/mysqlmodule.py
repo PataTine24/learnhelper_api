@@ -50,10 +50,8 @@ def no_commit(proc_name, *xproc_args) -> None | list[list]:
     mycursor = learnhelper.cursor()
 
     for x in xproc_args:
-        # print(x, " ->", type(x))
         if type(x) is str:
             x = string_to_sql_string(x)
-            # print(x)
     mycursor.callproc(proc_name, args=(xproc_args))
     result: list = []
     for s in mycursor.stored_results():
@@ -74,10 +72,8 @@ def with_commit(proc_name, *xproc_args) -> None | list[list]:
     """
     mycursor = learnhelper.cursor()
     for x in xproc_args:
-        # print(x, " ->", type(x))
         if type(x) is str:
             x = string_to_sql_string(x)
-            # print(x)
 
     mycursor.callproc(proc_name, args=(xproc_args))
     learnhelper.commit()
