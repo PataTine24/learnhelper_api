@@ -182,9 +182,11 @@ def get_question_infos_by_test_id(test_id: int) -> list[list]:
     result = no_commit("get_question_infos_by_test_id", test_id)
     return result
 
+
 def get_person_list():
     # TODO: docstring
     return no_commit("get_person_list")
+
 
 # ADD to DB
 def add_single_choice_question(question: str, question_type: int, correct_answer: str,

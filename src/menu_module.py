@@ -18,6 +18,39 @@ import tkinter as tk
 from settings_class import SettingsManager
 from tkinter import messagebox
 from ttkbootstrap.dialogs import Messagebox as MBox
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import List, Tuple, Optional
+
+@dataclass
+class QuestionData:
+    question_text: str = "Default Value"
+    question_id: int = 0
+    question_type: str = "Default Value"
+    question_type_parent: str = "Default Value"
+    question_is_singlechoice: bool = True
+    question_start_time: datetime = datetime.now()
+    question_end_time: datetime = datetime.now()
+    answer_list: List[Tuple[str, int, bool]] = field(default_factory=list)
+
+    def __post_init__(self):
+        if not (0 <= len(self.answer_list) <= 4):
+            raise ValueError("answer_list must have between 0 and 4 entries")
+
+    def add_answer(self, a_text: str, a_id: int, a_correct: bool):
+        answer_data = (a_text, a_id, a_correct)
+        self.answer_list.append(answer_data)
+
+    def set_question_text(self, text: str):
+        self.question_text = text
+
+    def set_question_id(self, q_id: int):
+        self.question_id = q_id
+
+    def set_start_end_times(self, start_time: datetime, end_time: datetime):
+        self.question_start_time = start_time
+        self.question_end_time = end_time
+
 
 set_man = SettingsManager()
 class ViewManager:
@@ -359,7 +392,6 @@ class TestQuestionFrame(ExFrame):
             question_text = q_entry[2]
             change_text(self._question_text_widget, question_text)
 
-            # TODO: Destroy old radio buttons/checkboxes. Probably before setting new single choice value
             tmp_answer = db.get_answers_by_question_id(self._question_id)
             self._answer_text_value_list = []
             self._answer_value_list = []
@@ -492,6 +524,8 @@ class TestResultFrame(ExFrame):
     """
     def __init__(self, master):
         super().__init__(master)
+        self._questiondata_list = []
+
         self._test_infos_label = tb.Label(self, text="Test Infos")
         self._test_infos_label.pack()
         self._cancel_button = tb.Button(self, text="CANCEL", command=self._cancel)
@@ -518,8 +552,36 @@ class TestResultFrame(ExFrame):
             # TODO: add a round thingy from TB where you can show the % correct from this test
             #  Later maybe some growth analysis per topic on a personal info page
             self._test_infos_label.config(text=f"TEST ID: {test_id}")
-            q_infos = db.get_question_infos_by_test_id(test_id)
-            print(q_infos)
+            self._questiondata_list = []
+
+            q_infos_list = db.get_question_infos_by_test_id(test_id)
+            # TODO: compare answers
+            qa_list = db.get_test_answer_and_question_ids_by_test_id(test_id)  # answers from test
+
+            tmp_dict = {}
+            question_type_list = db.get_test_type_list()
+            question_type_dict: dict[str:tuple[str, str]] = {"0": ("Emtpy", "None")}
+            for q_id, name, _, parent in question_type_list:
+                question_type_dict[q_id] = (name, parent)
+
+
+            for q_id, q_start, q_end in q_infos_list:
+                _, q_type_id, q_text, single, _ = db.get_question_by_id(q_id)
+
+                tmp_dict[q_id]=QuestionData(question_id=q_id,  question_start_time=q_start, question_end_time=q_end,
+                                            question_text=q_text, question_type=question_type_dict[q_type_id][0],
+                                            question_type_parent=question_type_dict[q_type_id][1],
+                                            question_is_singlechoice=single)
+                tmp_answer = db.get_answers_by_question_id(q_id)
+                for a_id, a_q_id, a_text, a_correct in tmp_answer:
+                    tmp_dict[a_q_id].add_answer(a_text, a_id, a_correct)
+
+
+            for index, key in enumerate(tmp_dict):
+               print("---------")
+               print(tmp_dict[key])
+
+
 
             self.tkraise()
 
