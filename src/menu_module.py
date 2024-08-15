@@ -518,6 +518,9 @@ class TestResultFrame(ExFrame):
             # TODO: add a round thingy from TB where you can show the % correct from this test
             #  Later maybe some growth analysis per topic on a personal info page
             self._test_infos_label.config(text=f"TEST ID: {test_id}")
+            q_infos = db.get_question_infos_by_test_id(test_id)
+            print(q_infos)
+
             self.tkraise()
 
 

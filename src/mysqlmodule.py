@@ -159,7 +159,7 @@ def get_answers_by_question_id(question_id: int) -> list[list[int, int, str, int
     return no_commit("get_answers_by_question_id", question_id)
 
 
-def get_question_by_id(question_id: int) -> list[int, int, str, int, object]:
+def get_question_by_id(question_id: int) -> list[list]:
     """
     Returns a question formated like this:\n
     [3, 2, 'How do you convert another primitive datatype into a string?', 0, datetime.datetime(2024, 7, 10, 16, 36, 48)]
@@ -171,12 +171,15 @@ def get_question_by_id(question_id: int) -> list[int, int, str, int, object]:
     return no_commit("get_question_by_id", question_id)[0]
 
 
-def get_question_ids_by_test_id(test_id: int) -> list[int]:
-    # TODO: docstring
-    result = []
-    tmp = no_commit("get_question_ids_by_test_id", test_id)
-    for x in tmp:
-        result.append(x[0])
+def get_question_infos_by_test_id(test_id: int) -> list[list]:
+    """
+    returns a list of question info formated like this:\n
+    [[1, datetime.datetime(2024, 8, 15, 19, 4, 8), datetime.datetime(2024, 8, 15, 19, 4, 10)], [...],...]
+    [[id, startime, endtime],[...],...]
+    :param test_id: int
+    :return: list[list[int, datetime, datetime]]
+    """
+    result = no_commit("get_question_infos_by_test_id", test_id)
     return result
 
 def get_person_list():
