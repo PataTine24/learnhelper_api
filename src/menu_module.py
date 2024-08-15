@@ -180,7 +180,7 @@ class StartTestFrame(ExFrame):
         self._cancel_button = tb.Button(self, text="CANCEL", command=self._cancel)
         self._cancel_button.pack()
 
-    def _check_num(self, in_value):
+    def _check_num(self, in_value) -> bool:
         # Allow empty input (when deleting)
         if in_value == "":
             return True
@@ -231,7 +231,6 @@ class StartTestFrame(ExFrame):
         self.tkraise()
 
 
-
 # TODO:  class TestQuestionFrame
 #  Add usability friendliness, click in frame of answer = click on radio button or checkbox (no small click areas)
 class TestQuestionFrame(ExFrame):
@@ -240,41 +239,32 @@ class TestQuestionFrame(ExFrame):
     the answer and go on to next."""
     def __init__(self, master):
         super().__init__(master)
-        #test values, otherwise None
-        self._question_id = 5
-        self._test_id = 30 # TODO: needs to be set to 0 at start
+        #temp values for inital creation
+        self._question_id = 0
+        self._test_id = 0
         self._test_type_name = "Empty"
-
-        tmp_q = db.get_question_by_id(self._question_id)
-        self._question_value = tmp_q[2]
+        self._question_text = "NO TEXT"
         self._number_of_questions = 0
-        self._finished_questions = 0
-        self._is_single_choice = bool(tmp_q[3])
+        self._finished_questions = 1
+        self._is_single_choice = True
+        self._answer_text_value_list = ["a", "b", "c", "d"]
+        self._answer_value_list = [1, 2, 3, 4]
 
-        tmp_answer = db.get_answers_by_question_id(self._question_id)
-        self._answer_text_value_list = []
-        self._answer_value_list = []
-
+        # Vars for checkbox(list cuz boolean values per box) and radio buttons(one int var that saves the id of answer)
         self._radio_var = tb.IntVar()
         self._checkbox_values = [tb.BooleanVar(), tb.BooleanVar(), tb.BooleanVar(), tb.BooleanVar()]
 
-        for a_id, _, a_value,_ in tmp_answer:
-            self._answer_text_value_list.append(a_value)
-            self._answer_value_list.append(a_id)
-
-        # all widgets init, no packing!
-
+        # all widgets init
         self._upper_frame = tb.Frame(self, padding="5")
         self._upper_frame.grid(row=0, column=0, sticky="nsew")
         self._middle_frame = tb.Frame(self, padding="5")
         self._middle_frame.grid(row=1, column=0, sticky="nsew")
         self._bottom_frame = tb.Frame(self, padding="5")
         self._bottom_frame.grid(row=2, column=0, sticky="nsew")
-
         self._question_infos_label = tb.Label(self._upper_frame, text="Test Infos")
         self._question_text_widget = tb.Text(self._upper_frame, state="disabled", width=100, height=13)
 
-       # # # #  add each element for answers # # # #
+        # create answer frames
         self._add_answer_elements()
 
         self._cancel_test_button = tb.Button(self._bottom_frame, text="Cancel Test", command=self._cancel)
@@ -287,14 +277,13 @@ class TestQuestionFrame(ExFrame):
         self._next_button.pack(side="right")
 
         # # # # set values AFTER packing only! # # # #
-        change_text(self._question_text_widget, self._question_value)
+        change_text(self._question_text_widget, self._question_text)
 
 
     def _add_answer_elements(self):
         self._answer_frames = []
         self._answer_boxes = []
         self._answer_text_widgets = []
-
 
         for index in range(4):
             self._answer_frames.append(tb.Frame(self._middle_frame, padding="2"))
@@ -314,10 +303,10 @@ class TestQuestionFrame(ExFrame):
             change_text(self._answer_text_widgets[index], text_tmp)
 
     def _cancel(self):
-        self._finished_questions = 0
+        self._finished_questions = 1
         ViewManager.get_instance().get_view("MainMenuFrame").load_me()
 
-    # TODO: If max numbers of questions, dont try to grab new question!
+
     def _submit_answers(self):
         if self._is_single_choice:  # radio buttons
             db.add_test_answer(self._test_id, self._question_id, self._radio_var.get())
@@ -328,12 +317,12 @@ class TestQuestionFrame(ExFrame):
                     print(self._test_id, self._question_id, self._answer_value_list[index])
                     print(type(self._test_id), type(self._question_id), type(self._answer_value_list[index]))
                     db.add_test_answer(self._test_id, self._question_id, self._answer_value_list[index])
-
+        # TODO: If max numbers of questions, dont try to grab new question!
         # check if any more questions are available
         try:
             n_question_id = db.add_new_random_question_to_test(self._test_id)
         except NoQuestionError as err:
-            self._finished_questions = 0
+            self._finished_questions = 1
             ViewManager.get_instance().get_view("MainMenuFrame").load_me()
 
         else:
@@ -363,6 +352,7 @@ class TestQuestionFrame(ExFrame):
             question_text = q_entry[2]
             change_text(self._question_text_widget, question_text)
 
+            # TODO: Destroy old radio buttons/checkboxes. Probably before setting new single choice value
             tmp_answer = db.get_answers_by_question_id(self._question_id)
             self._answer_text_value_list = []
             self._answer_value_list = []
