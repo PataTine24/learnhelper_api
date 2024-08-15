@@ -85,7 +85,6 @@ def with_commit(proc_name, *xproc_args) -> None | list[list]:
     # TODO:  Handle this better with if and checks instead of try! Or catch the right exception only
     try:
         for s in mycursor.stored_results():
-            print(s)
             rows = s.fetchall()
 
         for row in rows:
@@ -284,12 +283,22 @@ def add_test_type(test_type_content: str, main_type_id: int | None) -> None:
 # DELETE from DB
 def delete_person_data(person_id: int) -> None:
     """
-    Deletes person data from database based on person_id
+    Deletes person data from database based on person_id\n
+    Including taken test and the answers to it.
     :param person_id: int
     :return: None
     """
     with_commit("delete_person_data", person_id)
     
+def delete_taken_test(test_id: int) -> None:
+    """
+    Deletes taken test from the database.\n
+    Including questions and the answer history.
+    :param test_id: int
+    :return: None
+    """
+    with_commit("delete_taken_test", test_id)
+
 
 # # # # # Code to test # # # # #
 # TODO: On release remove test block
