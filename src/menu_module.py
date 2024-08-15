@@ -165,18 +165,15 @@ class StartTestFrame(ExFrame):
         self._dropdown_test_types.pack()
         self._extra_var = tb.StringVar()
         self._extra_var.set("")
-
         self._dropdown_extra = tb.Entry(self, textvariable=self._extra_var, state="readonly")
         self._dropdown_extra.pack()
 
-        # FIXME: if you wrote one number you cant delete teh one number anymore
         check_num = self.register(self._check_num)
         self._number_field = tb.Entry(self, width=2, validate="key", validatecommand=(check_num, "%P"))
         self._number_field.pack()
 
         self._start_button = tb.Button(self, text="Start Test", command=self._start_test)
         self._start_button.pack()
-
         self._cancel_button = tb.Button(self, text="CANCEL", command=self._cancel)
         self._cancel_button.pack()
 
@@ -209,8 +206,6 @@ class StartTestFrame(ExFrame):
         try:
             question_id = db.add_new_random_question_to_test(self._new_test_id)
         except NoQuestionError as err:
-            # TODO: alert there are no questions in that type
-            #  delete taken_test_id from DB
             conf_win = MBox.show_warning(message=f"Sorry! No Questions Available for\n{self._test_type_list[
                 self._dropdown_test_types.current()][1]}", title="NoQuestionError")
             db.delete_taken_test(self._new_test_id)
@@ -653,7 +648,7 @@ class PersonMenuFrame(ExFrame):
 # # # #  Function for changing what is happening on window close # # # #
 def on_closing():
     base = ViewManager.get_instance().get_view("base")
-    if messagebox.askokcancel("Beenden", "Möchten Sie die Anwendung wirklich schließen?"):
+    if MBox.okcancel(message=f"Do you want to close learnhelper?", title="Closing Approval") == "OK":
         # TODO: Save stuff based on position the person is on (like in a test)
         base.destroy()  # Schließt das Fenster
 
