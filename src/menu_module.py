@@ -524,18 +524,75 @@ class TestResultFrame(ExFrame):
     """
     def __init__(self, master):
         super().__init__(master)
-        self._questiondata_list = []
 
-        self._test_infos_label = tb.Label(self, text="Test Infos")
+        self._top_frame = tb.Frame(self)
+        self._middle_frame = tb.Frame(self)
+        self._bottom_frame = tb.Frame(self)
+        self._top_frame.grid(row=0, column=0)
+        self._middle_frame.grid(row=1, column=0)
+        self._bottom_frame.grid(row=2, column=0)
+
+        self._test_infos_label = tb.Label(self._top_frame, text="Test Infos")
         self._test_infos_label.pack()
-        self._cancel_button = tb.Button(self, text="CANCEL", command=self._cancel)
+        self._cancel_button = tb.Button(self._bottom_frame, text="Close", command=self._cancel)
         self._cancel_button.pack()
 
-    def _append_single_question_frame(self, parent_frame):
-        pass
+        self._question_frames = []
+
+
+    def _append_single_question_frame(self, parent_frame, question: QuestionData):
+        n_result_frame = tb.Frame(parent_frame)
+        n_result_frame.pack(pady=20, side='top')
+
+        tmp_answer_boxes = []
+        tmp_answer_frames = []
+        tmp_answer_text_widgets = []
+        tmp_radio_var = tk.IntVar()
+        tmp_checkbox_values = [tb.BooleanVar(), tb.BooleanVar(), tb.BooleanVar(), tb.BooleanVar()]
+
+        tmp_question_text_widget = tb.Text(n_result_frame, state="disabled", width=100, height=13)
+        tmp_question_text_widget.pack()
+        change_text(tmp_question_text_widget, question.question_text)
+
+        tmp_answer_top_frame = tb.Frame(n_result_frame)
+        tmp_answer_top_frame.pack()
+        # TODO: tk.BooleanVar.set(True)
+        #   tk.IntVar.set(Value)
+        for index in range(4):
+            tmp_answer_frames.append(tb.Frame(tmp_answer_top_frame, padding="2"))
+
+            if question.question_is_singlechoice:
+                tmp_answer_boxes.append(
+                    tb.Radiobutton(tmp_answer_frames[index], variable=tmp_radio_var,
+                                   value=question.answer_list[index][1]))
+                if question.answer_list[index][2]:
+                    tmp_radio_var.set(question.answer_list[index][1])
+
+            else:
+                tmp_answer_boxes.append(tb.Checkbutton(
+                    tmp_answer_frames[index], variable=tmp_checkbox_values[index]))
+                if question.answer_list[index][2]:
+                    tmp_checkbox_values[index].set(True)
+                else:
+                    tmp_checkbox_values[index].set(False)
+
+            tmp_answer_text_widgets.append(tb.Text(tmp_answer_frames[index], state="disabled", width=96, height=2))
+            tmp_answer_frames[index].grid(row=index)
+            tmp_answer_boxes[index].grid(row=index, column=0)
+            tmp_answer_text_widgets[index].grid(row=index, column=1)
+            # TODO: Could be list of strings, proper check is needed here for multiline answers and inline code
+            text_tmp = "".join(question.answer_list[index][0])
+            change_text(tmp_answer_text_widgets[index], text_tmp)
+
+        # append stuff as a dict
+        self._question_frames.append({"frame": n_result_frame, "answer_frames": tmp_answer_frames,
+                                      "answer_text_widgets": tmp_answer_text_widgets, "answer_boxes": tmp_answer_boxes,
+                                      "question_text_widget": tmp_question_text_widget})
+
+
 
     def _add_all_question_frames(self, parent_frame):
-        # TODO: Add scrollable master frame
+        # TODO: Add scrollable to parent frame
         #  add below foreach question one new frame
         #  Including all question formatted and answers
         #  And choosen answers by user
@@ -552,34 +609,32 @@ class TestResultFrame(ExFrame):
             # TODO: add a round thingy from TB where you can show the % correct from this test
             #  Later maybe some growth analysis per topic on a personal info page
             self._test_infos_label.config(text=f"TEST ID: {test_id}")
-            self._questiondata_list = []
+            self._questiondata_list = []  # TODO: not needed?
 
             q_infos_list = db.get_question_infos_by_test_id(test_id)
             # TODO: compare answers
             qa_list = db.get_test_answer_and_question_ids_by_test_id(test_id)  # answers from test
 
-            tmp_dict = {}
+            question_data_dict = {}
             question_type_list = db.get_test_type_list()
             question_type_dict: dict[str:tuple[str, str]] = {"0": ("Emtpy", "None")}
             for q_id, name, _, parent in question_type_list:
                 question_type_dict[q_id] = (name, parent)
 
-
             for q_id, q_start, q_end in q_infos_list:
                 _, q_type_id, q_text, single, _ = db.get_question_by_id(q_id)
 
-                tmp_dict[q_id]=QuestionData(question_id=q_id,  question_start_time=q_start, question_end_time=q_end,
+                question_data_dict[q_id] = QuestionData(question_id=q_id,  question_start_time=q_start, question_end_time=q_end,
                                             question_text=q_text, question_type=question_type_dict[q_type_id][0],
                                             question_type_parent=question_type_dict[q_type_id][1],
                                             question_is_singlechoice=single)
                 tmp_answer = db.get_answers_by_question_id(q_id)
                 for a_id, a_q_id, a_text, a_correct in tmp_answer:
-                    tmp_dict[a_q_id].add_answer(a_text, a_id, a_correct)
+                    question_data_dict[a_q_id].add_answer(a_text, a_id, a_correct)
 
+            for index, q_d_id in enumerate(question_data_dict):
+                self._append_single_question_frame(self._middle_frame, question_data_dict[q_d_id])
 
-            for index, key in enumerate(tmp_dict):
-               print("---------")
-               print(tmp_dict[key])
 
 
 
