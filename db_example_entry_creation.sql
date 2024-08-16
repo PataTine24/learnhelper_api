@@ -4,9 +4,9 @@ CALL `learnhelper`.`add_test_type`("SQL All", NULL);
 CALL `learnhelper`.`add_test_type`("NoSQL All", NULL);
 CALL `learnhelper`.`add_test_type`("Project Management All", NULL);
 
-CALL `learnhelper`.`add_person`("Admin");
-CALL `learnhelper`.`add_person`("Test User");
-CALL `learnhelper`.`add_person`("Dozent");
+CALL `learnhelper`.`add_person`("Admin","mail@test.de", "aFakeHash");
+CALL `learnhelper`.`add_person`("Test User","mail@test.de","aFakeHash");
+CALL `learnhelper`.`add_person`("Dozent","mail@test.de","aFakeHash"");
 
 /*  This should add the parents correct if you use this on an empty database & tables */
 CALL `learnhelper`.`add_question`(
@@ -444,3 +444,6 @@ CALL learnhelper.add_question(
     FALSE
 );
 
+UPDATE `questions`
+SET `validated_for_tests` = 1
+WHERE `id` != 0;

@@ -187,6 +187,23 @@ def get_person_list():
     # TODO: docstring
     return no_commit("get_person_list")
 
+def get_test_start_timestamp_by_test_id(test_id:int):
+    # returns datetime
+    pass
+
+def get_teachers_by_student_id(person_id:int):
+    # you get student id
+    pass
+
+def get_students_by_teacher_id(person_id:int):
+    # you get teacher id
+    pass
+
+def get_not_checked_questions_by_test_type_id(test_type_id:int):
+    pass
+
+def get_all_not_checked_questions():
+    pass
 
 # ADD to DB
 def add_single_choice_question(question: str, question_type: int, correct_answer: str,
@@ -282,10 +299,14 @@ def add_test_type(test_type_content: str, main_type_id: int | None) -> None:
 
 def add_end_time_by_test_id_and_question_id(test_id: int, question_id: int) -> None:
     with_commit("add_end_time_by_test_id_and_question_id", test_id, question_id)
-def add_person(user_name: str, email:str, password_clean:str):
 
+def add_person(user_name: str, email:str, password_clean:str):
+    # TODO: PRIORITY!!! add password hashing
     password_hash = password_clean
     with_commit("add_person", user_name, email, password_hash)
+
+def add_teacher_student_connection(teacher_person_id:int, student_person_id:int):
+    pass
 
 # DELETE from DB
 def delete_person_data(person_id: int) -> None:
@@ -306,6 +327,46 @@ def delete_taken_test(test_id: int) -> None:
     :return: None
     """
     with_commit("delete_taken_test", test_id)
+
+def delete_question(question_id: int):
+    pass
+
+# UPDATE in DB
+
+def update_person(person_id: int, user_name: str, email: str, password_clean: str ):
+    # TODO: hash password
+    pass
+
+def update_validation_by_question_id(question_id:int):
+    pass
+
+def update_question():
+    """
+    IN q_id int,
+IN q_content varchar(2000),
+IN q_type int,
+IN q_single bool,
+IN a_a_id int,
+IN a_b_id int,
+IN a_c_id int,
+IN a_d_id int,
+IN a_a_content varchar(255),
+IN a_b_content varchar(255),
+IN a_c_content varchar(255),
+IN a_d_content varchar(255),
+IN a_a_correct bool,
+IN a_b_correct bool,
+IN a_c_correct bool,
+IN a_d_correct bool
+    """
+    pass
+
+# SPECIAL compare function:
+def person_password_compare(email:str, password_clean:str):
+    # TODO: hash password
+    # returns:
+    # login_ok:bool ,found_email:bool , user_name:str , p_id:int
+    pass
 
 
 # # # # # Code to test # # # # #

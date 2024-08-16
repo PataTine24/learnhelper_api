@@ -22,6 +22,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Tuple, Optional
 
+
 @dataclass
 class QuestionData:
     question_text: str = "Default Value"
@@ -83,11 +84,13 @@ class ViewManager:
     def get_view_list(self):
         return self._views
 
+
 def change_entry(element_entry, text: str) -> None:
     element_entry.config(state="normal")
     element_entry.delete(0, tbc.END)
     element_entry.insert(0, text)
     element_entry.config(state="readonly")
+
 
 def change_text(element_text, text: str) -> None:
     element_text.config(state="normal")
@@ -95,8 +98,8 @@ def change_text(element_text, text: str) -> None:
     element_text.insert("1.0", text)
     element_text.config(state="disabled")
 
-# # # # creation fo classes for each "View" (Frame) to show # # # #
 
+# # # # creation fo classes for each "View" (Frame) to show # # # #
 # TODO: All Frame widgets need to be changed, so they can be restyled
 #  seems like some options used make it impossible to change the looks. Only settings so far works.
 class ExFrame(tb.Frame, ABC):
@@ -108,6 +111,8 @@ class ExFrame(tb.Frame, ABC):
     def load_me(self, *xargs):
         pass
 
+
+# TODO: update this window with a login screen, set testing account with our later hashing+salting (password= 12345)
 class StartFrame(ExFrame):
     def __init__(self, master):
         super().__init__(master)
@@ -118,8 +123,6 @@ class StartFrame(ExFrame):
         for p_id, person in tmp:
             self.person_list.append(person)
             self.index_to_id_list.append(p_id)
-
-
 
         self.label1 = tb.Label(self, text="Settings sind leer.", font=("Arial", 18), bootstyle="success")
         self.label1.pack(pady=5, padx=30)
@@ -135,7 +138,6 @@ class StartFrame(ExFrame):
 
         self._save_button = tb.Button(self, text="SAVE", command=self._continue_to_main)
         self._save_button.pack(padx=20, pady=5)
-
 
     def _continue_to_main(self, *xargs):
         # TODO: Check if entry exists from DB before setting it in local data (anti hack)
@@ -266,9 +268,6 @@ class StartTestFrame(ExFrame):
 #  validation submit if single = 1 choice, multiple = 2+ choice
 #  Use tab to run through radio buttons/checkboxes, cancel and submit key
 class TestQuestionFrame(ExFrame):
-    """    Shows one question with answers
-    and makes it possible to choose
-    the answer and go on to next."""
     def __init__(self, master):
         super().__init__(master)
         #temp values for inital creation
@@ -310,7 +309,6 @@ class TestQuestionFrame(ExFrame):
 
         # # # # set values AFTER packing only! # # # #
         change_text(self._question_text_widget, self._question_text)
-
 
     def _add_answer_elements(self):
         self._answer_frames = []
@@ -391,6 +389,7 @@ class TestQuestionFrame(ExFrame):
                                                    f"       {self._test_type_name}            Question Starttime: {q_entry[4]}")
             question_text = q_entry[2]
             change_text(self._question_text_widget, question_text)
+            # FIXME: wrong error in pycharm in line above
 
             tmp_answer = db.get_answers_by_question_id(self._question_id)
             self._answer_text_value_list = []
@@ -419,49 +418,6 @@ class TestQuestionFrame(ExFrame):
                 # TODO: Could be list of strings, proper check is needed here for multiline answers and inline code
                 text_tmp = "".join(self._answer_text_value_list[index])
                 change_text(self._answer_text_widgets[index], text_tmp)
-
-            # for index in range(4):
-            #     self._answer_frames.append(tb.Frame(self._middle_frame, padding="2"))
-            #     if self._is_single_choice:
-            #         self._answer_boxes.append(
-            #             tb.Radiobutton(self._answer_frames[index], variable=self._radio_var,
-            #                            value=self._answer_value_list[index]))
-            #     else:
-            #         self._answer_boxes.append(tb.Checkbutton(
-            #             self._answer_frames[index], variable=self._checkbox_values[index]))
-            #     self._answer_text_widgets.append(
-            #         tb.Text(self._answer_frames[index], state="disabled", width=96, height=2))
-            #     self._answer_frames[index].grid(row=index)
-            #     self._answer_boxes[index].grid(row=index, column=0)
-            #     self._answer_text_widgets[index].grid(row=index, column=1)
-            #     # TODO: Could be list of strings, proper check is needed here for multiline answers and inline code
-            #     text_tmp = "".join(self._answer_text_value_list[index])
-            #     change_text(self._answer_text_widgets[index], text_tmp)
-
-            # self._question_id = 5
-            # self._test_id = 30  # TODO: needs to be set to 0 at start
-            # self._test_type_name = "Empty"
-            #
-            # tmp_q = db.get_question_by_id(self._question_id)
-            # self._question_value = tmp_q[2]
-            # self._number_of_questions = 0
-            # self._finished_questions = 0
-            # self._is_single_choice = bool(tmp_q[3])
-            #
-            # tmp_answer = db.get_answers_by_question_id(self._question_id)
-            # self._answer_text_value_list = []
-            # self._answer_value_list = []
-            # for a_id, _, a_value, _ in tmp_answer:
-            #     self._answer_text_value_list.append(a_value)
-            #     self._answer_value_list.append(a_id)
-
-            # answer 0-3 values
-            # radio or checkbox
-            # daher löschen der elemente
-            #
-            #
-
-
 
             # TODO: change all values in the view
             self.tkraise()
@@ -500,6 +456,7 @@ class CheckTestFrame(ExFrame):
     def load_me(self, *xargs):
         # FIXME: Errors with settings_managers returns
         set_id: int = set_man.get_settings("person_data", "id")
+        # FIXME: try to fix the type hint error in pycharm above
         taken_test = db.get_tests_by_person_id(set_id)
         if taken_test is None or len(taken_test) == 0:
             MBox.show_warning(message=f"Sorry! You have not started any tests yet.", title="No tests available")
@@ -519,12 +476,6 @@ class CheckTestFrame(ExFrame):
 # TODO: class TestResultFrame
 #  Needs to load all questions and answers in, also given answers sorted by question id
 class TestResultFrame(ExFrame):
-    """
-    Shows all questions & answers from one test
-    Will be called after a test is finished and shows that test only
-    Needs to have a collection for each question + answers belonging to it
-    and mark the answers given and show point result on the side.
-    """
     def __init__(self, master):
         super().__init__(master)
 
@@ -541,7 +492,6 @@ class TestResultFrame(ExFrame):
         self._cancel_button.pack()
 
         self._question_frames = []
-
 
     def _append_single_question_frame(self, parent_frame, question: QuestionData):
         n_result_frame = tb.Frame(parent_frame)
@@ -587,12 +537,12 @@ class TestResultFrame(ExFrame):
             text_tmp = "".join(question.answer_list[index][0])
             change_text(tmp_answer_text_widgets[index], text_tmp)
 
-        # append stuff as a dict
+        # append stuff as a dict for later checking
+        # TODO: PRIORITY set another checkbox or radio button right to each answer which the user used in their test
+        #  also try to show time used on questions/test total
         self._question_frames.append({"frame": n_result_frame, "answer_frames": tmp_answer_frames,
                                       "answer_text_widgets": tmp_answer_text_widgets, "answer_boxes": tmp_answer_boxes,
                                       "question_text_widget": tmp_question_text_widget})
-
-
 
     def _add_all_question_frames(self, parent_frame):
         # TODO: Add scrollable to parent frame
@@ -601,7 +551,9 @@ class TestResultFrame(ExFrame):
         #  And choosen answers by user
         #  Extra includes start and end time (and time used) for question
         pass
+
     def _cancel(self):
+        # FIXME: maybe warning above can be removed anyhow(pycharm)
         ViewManager.get_instance().get_view("MainMenuFrame").load_me()
 
     def load_me(self, test_id: int = None, *xargs):
@@ -625,12 +577,13 @@ class TestResultFrame(ExFrame):
                 question_type_dict[q_id] = (name, parent)
 
             for q_id, q_start, q_end in q_infos_list:
-                _, q_type_id, q_text, single, _ = db.get_question_by_id(q_id)
+                _, q_type_id, q_text, single, _, _ = db.get_question_by_id(q_id)
 
-                question_data_dict[q_id] = QuestionData(question_id=q_id,  question_start_time=q_start, question_end_time=q_end,
-                                            question_text=q_text, question_type=question_type_dict[q_type_id][0],
-                                            question_type_parent=question_type_dict[q_type_id][1],
-                                            question_is_singlechoice=single)
+                question_data_dict[q_id] = (QuestionData(question_id=q_id, question_start_time=q_start,
+                                                         question_end_time=q_end, question_text=q_text,
+                                                         question_type=question_type_dict[q_type_id][0],
+                                                         question_type_parent=question_type_dict[q_type_id][1],
+                                                         question_is_singlechoice=single))
                 tmp_answer = db.get_answers_by_question_id(q_id)
                 for a_id, a_q_id, a_text, a_correct in tmp_answer:
                     question_data_dict[a_q_id].add_answer(a_text, a_id, a_correct)
@@ -638,11 +591,7 @@ class TestResultFrame(ExFrame):
             for index, q_d_id in enumerate(question_data_dict):
                 self._append_single_question_frame(self._middle_frame, question_data_dict[q_d_id])
 
-
-
-
             self.tkraise()
-
 
 
 # TODO: class QuestionMenuFrame
@@ -655,6 +604,7 @@ class QuestionMenuFrame(ExFrame):
         self._cancel_button.pack()
 
     def _cancel(self):
+        # FIXME: again warning above to fix
         ViewManager.get_instance().get_view("MainMenuFrame").load_me()
 
     def load_me(self, *xargs):
@@ -685,6 +635,7 @@ class SettingsFrame(ExFrame):
             "8K(16:9)": (7680, 4320)}
 
         self._gen_themes = self._master.style.theme_names()
+        # FIXME: reference error above and below with style (pyvcharm)
         self._dropdown_themes = tb.Combobox(self, values=self._gen_themes, state="readonly")
         self._dropdown_themes.set(self._master.style.theme_use())
         self._dropdown_themes.pack()
@@ -716,7 +667,6 @@ class SettingsFrame(ExFrame):
         position_down = int(screen_height / 2 - x_y[1] / 2)
 
         self._master.geometry(f"{x_y[0]}x{x_y[1]}+{position_right}+{position_down}")
-
 
     def _save_changes(self):
         new_theme = self._dropdown_themes.get()
@@ -808,8 +758,6 @@ def set_window_properties():
     Here we configure how the window will look
     We also check for settings here and implement these here
     """
-
-
     theme = str(set_man.get_settings("visual_data", "theme"))
     # FIXME: Seems like this has a problem with different themes?
     #  Maybe they are changing different things we dont see in our project so far
@@ -818,6 +766,7 @@ def set_window_properties():
 
     root_window.protocol("WM_DELETE_WINDOW", on_closing)
     root_window.title("Learnhelper")
+    # TODO: add window icon
 
     screen_width = root_window.winfo_screenwidth()
     screen_height = root_window.winfo_screenheight()
@@ -867,13 +816,12 @@ def test():
             fr.grid(row=0, column=0, sticky='nsew')
 
     # check if settings already exist, if no we have default of ID 0, then the start frame needs to be called
-    # FIXME: We need to load the view new(init it new) to get the right infos in it , like person data
     if set_man.get_settings("person_data", "id") == 0:
         # need to open the init screen for setting user
         vm.get_view("StartFrame").tkraise()
     else:
        vm.get_view("MainMenuFrame").tkraise()
-       #vm.get_view("TestQuestionFrame").tkraise()
+
 
     base.mainloop()
     db.end()
