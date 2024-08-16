@@ -501,16 +501,19 @@ class CheckTestFrame(ExFrame):
         # FIXME: Errors with settings_managers returns
         set_id: int = set_man.get_settings("person_data", "id")
         taken_test = db.get_tests_by_person_id(set_id)
-        self._dropdown_indexes = []
-        self._dropdown_values = []
-        for t_id, _, _, num_questions, start_time, _, test_type_name, _ in taken_test:
-            self._dropdown_indexes.append(t_id)
-            self._dropdown_values.append(f"{test_type_name} ({num_questions}Q) | {start_time}")
-        dropdown_width = max(max(len(item) for item in self._dropdown_values) + 2, 35)
-        self.dropdown.config(width=dropdown_width)
-        self.dropdown['values'] = self._dropdown_values
-        self.dropdown.current(0)
-        self.tkraise()
+        if taken_test is None or len(taken_test) == 0:
+            MBox.show_warning(message=f"Sorry! You have not started any tests yet.", title="No tests available")
+        else:
+            self._dropdown_indexes = []
+            self._dropdown_values = []
+            for t_id, _, _, num_questions, start_time, _, test_type_name, _ in taken_test:
+                self._dropdown_indexes.append(t_id)
+                self._dropdown_values.append(f"{test_type_name} ({num_questions}Q) | {start_time}")
+            dropdown_width = max(max(len(item) for item in self._dropdown_values) + 2, 35)
+            self.dropdown.config(width=dropdown_width)
+            self.dropdown['values'] = self._dropdown_values
+            self.dropdown.current(0)
+            self.tkraise()
 
 
 # TODO: class TestResultFrame

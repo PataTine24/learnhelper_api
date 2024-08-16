@@ -282,7 +282,10 @@ def add_test_type(test_type_content: str, main_type_id: int | None) -> None:
 
 def add_end_time_by_test_id_and_question_id(test_id: int, question_id: int) -> None:
     with_commit("add_end_time_by_test_id_and_question_id", test_id, question_id)
+def add_person(user_name: str, email:str, password_clean:str):
 
+    password_hash = password_clean
+    with_commit("add_person", user_name, email, password_hash)
 
 # DELETE from DB
 def delete_person_data(person_id: int) -> None:
