@@ -34,7 +34,9 @@ If you run the MySQL server loacaly you to run there as a root user the
 After all this is done, congrats, you have access to my database schema ;)
 Go into your mysqlmodule.py and test it to run (with PyCharm it should already work like this)
 
-
+** NOTE: If you get databse errors or no results or whatsover, please make sure you use the latest SQL
+querrys provied. in worst case, drop the DB and let the 2 querrys run over again.
+Sometimes while doing the coding we realize some querrys werent perfect/are missing and we change/add them.
 
 ## Naming of different things with PY and MySQL
 ### Python
