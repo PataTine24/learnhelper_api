@@ -16,7 +16,7 @@ import ttkbootstrap as tb
 import ttkbootstrap.constants as tbc
 import tkinter as tk
 from settings_class import SettingsManager
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from ttkbootstrap.dialogs import Messagebox as MBox
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -479,9 +479,33 @@ class TestResultFrame(ExFrame):
     def __init__(self, master):
         super().__init__(master)
 
-        self._top_frame = tb.Frame(self)
-        self._middle_frame = tb.Frame(self)
-        self._bottom_frame = tb.Frame(self)
+        # Container für Scrollbar und Canvas
+        container = tb.Frame(self)
+        container.pack(fill="both", expand=True)
+
+        #Canvas für den scrollbaren Bereich
+        canvas = tb.Canvas(container)
+        canvas.pack(side="left", fill="both", expand=True)
+
+        # Scrollbar hinzufügen
+        scrollbar = tb.Scrollbar(container, orient="vertical", command=canvas.yview)
+        scrollbar.pack(side="right", fill="y")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Innerer Frame, der in der Canvas gescrollt wird
+        scrollable_frame = tb.Frame(canvas)
+        scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+        # Fügt den scrollbaren Frame zum Canvas hinzu
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+
+        # Binde das Mausrad-Event zum Scrollen
+        canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+        # Widgets des scrollbaren Frames
+        self._top_frame = tb.Frame(scrollable_frame)
+        self._middle_frame = tb.Frame(scrollable_frame)
+        self._bottom_frame = tb.Frame(scrollable_frame)
         self._top_frame.grid(row=0, column=0)
         self._middle_frame.grid(row=1, column=0)
         self._bottom_frame.grid(row=2, column=0)
@@ -492,6 +516,11 @@ class TestResultFrame(ExFrame):
         self._cancel_button.pack()
 
         self._question_frames = []
+
+    def _on_mousewheel(self, event):
+        # Windows scroll direction
+        self.master.yview_scroll(-1 * (event.delta // 120), "units")
+
 
     def _append_single_question_frame(self, parent_frame, question: QuestionData):
         n_result_frame = tb.Frame(parent_frame)
@@ -545,7 +574,9 @@ class TestResultFrame(ExFrame):
                                       "question_text_widget": tmp_question_text_widget})
 
     def _add_all_question_frames(self, parent_frame):
-        # TODO: Add scrollable to parent frame
+        #
+        # VISUALS: added Scrollbar (mousewheel sensitive) to the 'TestResultFrame(ExFrame)'
+        # TODO:
         #  add below foreach question one new frame
         #  Including all question formatted and answers
         #  And choosen answers by user
